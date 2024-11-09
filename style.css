@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #111;
+}
+
+.test {
+  width: 170px;
+  height: 536px;
+  gap: 5px;
+  overflow: scroll;
+  overflow-x: hidden;
+  background-color: rgba(1, 29, 119, 0.9);
+  opacity: 0;
+}
+
+.test:hover {
+  opacity: 1;
+}
+
+.test button {
+  min-width: 170px;
+  height: 50px;
+  cursor: pointer;
+  white-space: normal;
+  word-wrap: break-word;
+  background-color: transparent;
+  color: white;
+  border: 1px solid rgba(0, 0, 0, .15);  
+}
+
+.test button:hover {
+  background-color: rgba(255, 255, 255, .1) ;
+}
+
+/* .jw-aspect.jw-reset{padding: 0 !important; } */
+.test {
+  /* width: 100px; */
+  height: 88%;
+  z-index: 1000;
+  position: absolute;
+}
+
+.test::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+.test::-webkit-scrollbar-track {
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px 10px #777;
+}
+
+/* Handle */
+.test::-webkit-scrollbar-thumb {
+  background: rgb(63, 63, 63);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+.test::-webkit-scrollbar-thumb:hover {
+  background: #111;
+}
+
+.channelNumber {
+  width: 150px;
+  height: 150px;
+  position: absolute;
+  top: 25%;
+  right: calc(50% - 75px);
+  background-color: rgba(1, 1, 121, 0.7);
+  border-radius: 20px;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+}
+
+.channelNumber span {
+  color: white;
+  font-size: 3rem;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  letter-spacing: 5px;
+}
