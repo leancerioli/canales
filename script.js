@@ -1203,7 +1203,7 @@ async function setupPlayer() {
     var languageChangedDuringPlay = false;
 
     jwplayer().on("play", function (e) {
-      // jwplayer().setFullscreen(true)
+      jwplayer().setFullscreen(true)
       
       if (!languageChangedDuringPlay) {
         var currentLanguage = jwplayer().getCurrentAudioTrack();
