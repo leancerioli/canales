@@ -1203,7 +1203,7 @@ async function setupPlayer() {
     var languageChangedDuringPlay = false;
 
     jwplayer().on("play", function (e) {
-      jwplayer().setFullscreen(true)
+      // jwplayer().setFullscreen(true)
       
       if (!languageChangedDuringPlay) {
         var currentLanguage = jwplayer().getCurrentAudioTrack();
@@ -1218,11 +1218,22 @@ async function setupPlayer() {
       }
     });
 
-      // setTimeout(() => {console.log('play'); jwplayer().play()}, 4000)
-
     jwplayer().on("complete", function (e) {
       languageChangedDuringPlay = false;
     });
+
+    jwplayer('player').on('ready', () => {
+      // BLOCKING LEFT and RIGHT KEY PRESS
+      console.log('ready')
+      let all = document.querySelector('#player').getElementsByTagName('*');
+      for (let element of all) {
+          element.addEventListener("keydown", (e) => {
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+          }, true);
+      }
+    
+  });
   } catch (error) {
     console.error("ddFailed to setup player:", error);
     console.error("No se encontraron URLs válidas.")
@@ -1243,9 +1254,9 @@ const runTimer = () => {
 }
 document.addEventListener('keypress', (e) => {
   // document.querySelector('.input').innerText = e.key
-  if (!(e.keyCode >= 48 && e.keyCode <= 57)) return
+  // if (!(e.keyCode >= 48 && e.keyCode <= 57)) return
   document.querySelector('.channelNumber').style.visibility = 'visible'
-  if (pressed.length > 2) return
+  // if (pressed.length > 2) return
   const channelNumberBox = document.querySelector('.channelNumber span')
   pressed += e.key
   channelNumberBox.innerText = pressed
@@ -1254,12 +1265,13 @@ document.addEventListener('keypress', (e) => {
 })
 
 // document.addEventListener('touchstart', (e) => {
-//   document.querySelector('.input').innerText = e.code
-// })
-
-// document.addEventListener('keypress', (e) => {
 //   document.querySelector('.input').innerText = e.key
 // })
+
+
+document.addEventListener('keydown', (e) => {
+  document.querySelector('.input').innerText = e.key
+})
 
 setTimeout(() => {
   const midiv = document.createElement("div");
@@ -1274,3 +1286,12 @@ setTimeout(() => {
   document.querySelector('#player').prepend(midiv2)
 
 }, 1000)
+
+document.querySelector('#btn1').addEventListener('click', () => {
+  document.querySelector('#span1').innerText = "clickeado boton 1"
+  console.log(window.location.href = 'index.html/test')
+})
+
+document.querySelector('#btn2').addEventListener('click', () => {
+  document.querySelector('#span2').innerText = "clickeado boton 2"
+})

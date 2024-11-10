@@ -11,11 +11,11 @@ body {
   overflow: scroll;
   overflow-x: hidden;
   background-color: rgba(1, 29, 119, 0.9);
-  opacity: 0;
+  /* opacity: 0; */
 }
 
 .test:hover {
-  opacity: 1;
+  /* opacity: 1; */
 }
 
 .test button {
