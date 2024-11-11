@@ -823,11 +823,43 @@ channelList.forEach((e, i) => {
   const btn = document.createElement("button");
   btn.innerText = i + 1 + "- " + atob(e.getURL).replaceAll("_", " ");
   btn.setAttribute("getURL", e.getURL);
+  btn.setAttribute("tabindex", 0);
   // document.querySelector(".canales").appendChild(btn);
   setTimeout(() => {
     document.querySelector(".test").appendChild(btn);
   }, 2000)
 });
+
+// Crea funcion de seleccionar canales con las flechas
+setTimeout(() => {
+  const elementos = document.querySelectorAll('[tabindex="0"]'); // Selecciona todos los elementos con tabindex="0"
+  let indexActivo = 0;  // Índice del elemento actualmente enfocado
+  console.log(elementos)
+
+  // Función para enfocar el siguiente o el anterior elemento
+  function enfocarElemento(index) {
+    if (index >= 0 && index < elementos.length) {
+      elementos[index].focus();
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      // Flecha abajo, mover al siguiente elemento
+      indexActivo = (indexActivo + 1) % elementos.length; // Cicla al siguiente
+      enfocarElemento(indexActivo);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      // Flecha arriba, mover al elemento anterior
+      indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
+      enfocarElemento(indexActivo);
+    }
+  });
+
+  // Inicialmente enfocar el primer elemento
+  // enfocarElemento(indexActivo);
+}, 2500)
 
 const playChannel = async (e, channelNumber) => {
   const selectedChannel = e?.target.getAttribute("getURL") || channelList[channelNumber-1].getURL;
@@ -1017,52 +1049,54 @@ function getChannelID() {
 }
 getChannelID();
 
-let mt = [
-  "edge-live01-mun",
-  "edge-live02-mun",
-  "edge-live11-hr",
-  "edge-live12-hr",
-  "edge-live13-hr",
-  "edge-live14-hr",
-  "edge-live15-hr",
-  "edge-live16-hr",
-  "edge-live17-hr",
-  "edge-live31-hr",
-  "edge-live32-hr",
-  "edge-live34-hr",
-  "edge-live11-sl",
-  "edge-live12-sl",
-  "edge-live13-sl",
-  "edge-live15-sl",
-  "edge-live17-sl",
-  "edge-live31-sl",
-  "edge-vod02-sl",
-  "edge-vod04-sl",
-  "edge-vod06-sl",
-  "edge9-sl",
-  "edge10-sl",
-  "edge-vod01-hr",
-  "edge-vod03-hr",
-  "edge-vod04-hr",
-  "edge1-ccast-sl",
-  "edge2-ccast-sl",
-  "edge6-ccast-sl",
-  "edge-live01-cen",
-  "edge-live03-cen",
-  "edge-mix02-cte",
-  "edge-vod01-cen",
-  "edge-live01-cte",
-  "edge-live01-coe",
-  "edge-mix01-coe",
-  "edge-mix02-coe",
-  "edge-mix03-coe",
-  "edge-mix04-coe",
-  "edge-mix05-coe",
-  "edge-mix01-ird",
-  "edge-mix02-ird",
-  "edge-mix01-mus",
-  "edge-mix03-mus",
-];
+// let mt = [
+//   "edge-live01-mun",
+//   "edge-live02-mun",
+//   "edge-live11-hr",
+//   "edge-live12-hr",
+//   "edge-live13-hr",
+//   "edge-live14-hr",
+//   "edge-live15-hr",
+//   "edge-live16-hr",
+//   "edge-live17-hr",
+//   "edge-live31-hr",
+//   "edge-live32-hr",
+//   "edge-live34-hr",
+//   "edge-live11-sl",
+//   "edge-live12-sl",
+//   "edge-live13-sl",
+//   "edge-live15-sl",
+//   "edge-live17-sl",
+//   "edge-live31-sl",
+//   "edge-vod02-sl",
+//   "edge-vod04-sl",
+//   "edge-vod06-sl",
+//   "edge9-sl",
+//   "edge10-sl",
+//   "edge-vod01-hr",
+//   "edge-vod03-hr",
+//   "edge-vod04-hr",
+//   "edge1-ccast-sl",
+//   "edge2-ccast-sl",
+//   "edge6-ccast-sl",
+//   "edge-live01-cen",
+//   "edge-live03-cen",
+//   "edge-mix02-cte",
+//   "edge-vod01-cen",
+//   "edge-live01-cte",
+//   "edge-live01-coe",
+//   "edge-mix01-coe",
+//   "edge-mix02-coe",
+//   "edge-mix03-coe",
+//   "edge-mix04-coe",
+//   "edge-mix05-coe",
+//   "edge-mix01-ird",
+//   "edge-mix02-ird",
+//   "edge-mix01-mus",
+//   "edge-mix03-mus",
+// ];
+
+let mt = ["edge1-ccast-sl"]
 
 async function testSubdomains() {
   for (let i = 0; i < mt.length; i++) {
@@ -1080,7 +1114,7 @@ async function testSubdomains() {
 
     try {
       await testMpdURL(mpdURL);
-            // console.log("Subdomain", subdomain, "is working.");
+            console.log("Subdomain", subdomain, "is working.");
     } catch (error) {
       console.error(
         "Subdomain",
@@ -1114,18 +1148,10 @@ async function getValidMpd() {
   mt2 = [...mt];
   while (mt2.length > 0) {
     var random = Math.floor(Math.random() * mt2.length);
-    var url =
-      "https://" +
-      mt2[random] +
-      ".cvattv.com.ar/live/c" +
-      number +
-      "eds/" +
-      atob(getURL) +
-      "/SA_Live_dash_enc/" +
-      atob(getURL) +
-      ".mpd";
+    var url = "https://" + mt2[random] + ".cvattv.com.ar/live/c" + number + "eds/" + atob(getURL) + "/SA_Live_dash_enc/" + atob(getURL) + ".mpd";
     try {
       let response = await fetch(url);
+      // if (response.type != 'cors') {
       if (response.ok) {
         console.log("Selected mt:", mt2[random]);
         return url;
@@ -1145,7 +1171,6 @@ async function getValidMpd() {
 async function setupPlayer() {
   try {
     var mpd = await getValidMpd();
-    console.log(mpd)
 
     // var start = getParameterByName('start');
     // var autostart = start !== undefined && start === "true";
@@ -1224,16 +1249,17 @@ async function setupPlayer() {
 
     jwplayer('player').on('ready', () => {
       // BLOCKING LEFT and RIGHT KEY PRESS
-      console.log('ready')
-      let all = document.querySelector('#player').getElementsByTagName('*');
-      for (let element of all) {
-          element.addEventListener("keydown", (e) => {
-            e.stopImmediatePropagation();
-            e.stopPropagation();
-          }, true);
-      }
-    
-  });
+      document.querySelector('#player').querySelectorAll('*:not(div.test)').forEach(e => e.setAttribute('tabindex', -1))
+      document.querySelector('#player').setAttribute('tabindex', -1)
+      // let all = document.querySelector('#player').getElementsByTagName('*');
+      // for (let element of all) {
+      //     element.addEventListener("keydown", (e) => {
+      //       e.stopImmediatePropagation();
+      //       e.stopPropagation();
+      //     }, true);
+      // }
+
+    });
   } catch (error) {
     console.error("ddFailed to setup player:", error);
     console.error("No se encontraron URLs válidas.")
@@ -1271,20 +1297,30 @@ document.addEventListener('keypress', (e) => {
 
 document.addEventListener('keydown', (e) => {
   document.querySelector('.input').innerText = e.key
+
+  // if (e.code === "ArrowDown") {
+  //   document.querySelector("[tabindex='0']").focus();
+  //   console.log('test')
+  // }
+  // if (e.code === "ArrowRight") {
+  //   document.querySelector("[tabindex='2']").focus();
+  // }
+
 })
 
 setTimeout(() => {
   const midiv = document.createElement("div");
   midiv.classList = 'test'
+  midiv.setAttribute('tabindex', -1)
   document.querySelector('#player').prepend(midiv)
   document.querySelector(".test").addEventListener("click", playChannel);
+  // midiv.focus()
 
   const midiv2 = document.createElement("div");
   const midiv2text = document.createElement('span')
   midiv2.classList = 'channelNumber'
   midiv2.append(midiv2text)
   document.querySelector('#player').prepend(midiv2)
-
 }, 1000)
 
 document.querySelector('#btn1').addEventListener('click', () => {
@@ -1294,4 +1330,5 @@ document.querySelector('#btn1').addEventListener('click', () => {
 
 document.querySelector('#btn2').addEventListener('click', () => {
   document.querySelector('#span2').innerText = "clickeado boton 2"
+  document.querySelector('.test').focus()
 })
