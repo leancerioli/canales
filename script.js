@@ -1096,7 +1096,7 @@ getChannelID();
 //   "edge-mix03-mus",
 // ];
 
-let mt = ["edge1-ccast-sl"]
+let mt = ["edge-live13-sl"]
 
 async function testSubdomains() {
   for (let i = 0; i < mt.length; i++) {
