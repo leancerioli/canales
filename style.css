@@ -6,8 +6,10 @@ body {
 }
 
 #player {
-  min-width: 950px;
-  min-height: 535px;
+  /* min-width: 950px;
+  min-height: 535px; */
+  /* width: 50% !important; */
+  /* position: relative; */
 }
 
 .test {
@@ -19,7 +21,7 @@ body {
   overflow-x: hidden;
   background-color: rgba(1, 29, 119, 0.9);
   z-index: 1000;
-  position: absolute;
+  position: relative;
   opacity: 0;
 }
 

@@ -5,11 +5,6 @@ const channelList = [
     key: "cb89ee3961599e3e648a5aad60895f34",
   },
   {
-    getURL: "U3lGeQ==",
-    keyId: "9cd99cbb466c42e5b33e7a2ef7e2c7df",
-    key: "18d9faccdaf2d15807d0a3f713e8b2a4",
-  },
-  {
     getURL: "VW5pdmVyc2FsX0NpbmVtYQ==",
     keyId: "f6ae2e17173055e4ca69dc18963406ae",
     key: "5a955c29eb88a0b4c9a2538cc4b3aea2",
@@ -78,11 +73,6 @@ const channelList = [
     getURL: "Q2FuYWxfZGVfbGFzX2VzdHJlbGxhcw==",
     keyId: "b37d85be9d2b4b619f945beff713fda3",
     key: "917309c98f072b0bd484dd6560c6d166",
-  },
-  {
-    getURL: "SVNBVA==",
-    keyId: "db764164934a48749a7a01bd015694f3",
-    key: "512f3c8869af45e6e5dd1525b6a77867",
   },
   {
     getURL: "Q2FydG9vbk5ldHdvcms=",
@@ -715,11 +705,6 @@ const channelList = [
     key: "4fdf28a0ab91356ca55a75f4e9bf8c92",
   },
   {
-    getURL: "UGxheWJveQ",
-    keyId: "8577d81eaf33436d9f1e482360685a7c",
-    key: "f608a0ac703cfaaf9442574d9a2b87fb",
-  },
-  {
     getURL: "Rm94X05ld3M=",
     keyId: "3fe3f31a5e7b48a1b548e9364757ce66",
     key: "32993fc281207fe915f6f1e990957868",
@@ -795,16 +780,6 @@ const channelList = [
     key: "16c2ed0617cf1e123f3af6ea8875a82d",
   },
   {
-    getURL: "VmVudXM=",
-    keyId: "34237d2ae6684ee7a011f5b9c7c43e6d",
-    key: "05d973d987915120e567880f50a422af",
-  },
-  {
-    getURL: "U2V4dHJlbWU",
-    keyId: "95bd64227acf458daf7886f803d0298e",
-    key: "79e28ee0ec58958bb666f9e53a0cd434",
-  },
-  {
     getURL: "RXZlbnRvczFIRA",
     keyId: "5c86e237317c2231ac1bc130e995fad6",
     key: "dcacf7b239ee03df3c69ca11dbcde4eb",
@@ -817,18 +792,6 @@ const channelList = [
 ];
 const playerInstance = jwplayer("player");
 let getURL = channelList[0].getURL;
-
-// Crea todos los botones de los canales
-channelList.forEach((e, i) => {
-  const btn = document.createElement("button");
-  btn.innerText = i + 1 + "- " + atob(e.getURL).replaceAll("_", " ");
-  btn.setAttribute("getURL", e.getURL);
-  btn.setAttribute("tabindex", 0);
-  // document.querySelector(".canales").appendChild(btn);
-  setTimeout(() => {
-    document.querySelector(".test").appendChild(btn);
-  }, 2000)
-});
 
 // Crea funcion de seleccionar canales con las flechas
 const arrowsInject = setInterval(() => {
@@ -1256,23 +1219,12 @@ async function setupPlayer() {
     });
 
     jwplayer('player').on('ready', () => {
-      // BLOCKING LEFT and RIGHT KEY PRESS
       document.querySelector('#player').querySelectorAll('*:not(div.test)').forEach(e => e.setAttribute('tabindex', -1))
       document.querySelector('#player').setAttribute('tabindex', -1)
 
-      
       localStorage.setItem("jwplayer.enableShortcuts", "false");
       localStorage.setItem("jwplayer.mute", "false");
       localStorage.setItem("jwplayer.volume", "100");
-
-      // let all = document.querySelector('#player').getElementsByTagName('*');
-      // for (let element of all) {
-      //     element.addEventListener("keydown", (e) => {
-      //       e.stopImmediatePropagation();
-      //       e.stopPropagation();
-      //       e.preventDefault();
-      //     }, true);
-      // }
 
     });
   } catch (error) {
@@ -1311,7 +1263,7 @@ document.addEventListener('keypress', (e) => {
 
 
 document.addEventListener('keydown', (e) => {
-  // document.querySelector('.input').innerText = e.key
+  document.querySelector('.input').innerText = e.key
 
   // if (e.code === "ArrowDown") {
   //   document.querySelector("[tabindex='0']").focus();
@@ -1325,20 +1277,33 @@ document.addEventListener('keydown', (e) => {
 
 const channelListInject = setInterval(() => {
   const player = document.querySelector('#player')
-  if (!player) return
+  const createdPlayer = player.querySelector('.jw-wrapper')
+  if (!createdPlayer) return
   clearInterval(channelListInject)
+
   const midiv = document.createElement("div");
   midiv.classList = 'test'
   midiv.setAttribute('tabindex', -1)
   player.prepend(midiv)
   document.querySelector(".test").addEventListener("click", playChannel);
-  // midiv.focus()
 
   const midiv2 = document.createElement("div");
   const midiv2text = document.createElement('span')
   midiv2.classList = 'channelNumber'
   midiv2.append(midiv2text)
   player.prepend(midiv2)
+
+  // Crea todos los botones de los canales
+  channelList.forEach((e, i) => {
+    const btn = document.createElement("button");
+    btn.innerText = i + 1 + "- " + atob(e.getURL).replaceAll("_", " ");
+    btn.setAttribute("getURL", e.getURL);
+    btn.setAttribute("tabindex", 0);
+    // document.querySelector(".canales").appendChild(btn);
+    setTimeout(() => {
+      document.querySelector(".test").appendChild(btn);
+    }, 2000)
+  });
 }, 1000)
 
 // document.querySelector('#btn1').addEventListener('click', () => {
