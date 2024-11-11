@@ -12,7 +12,8 @@ body {
 
 .test {
   width: 170px;
-  height: round(up, 80%, 50px);
+  /* height: round(up, 80%, 50px); */
+  height: 100%;
   gap: 5px;
   overflow: scroll;
   overflow-x: hidden;
