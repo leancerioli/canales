@@ -1166,7 +1166,6 @@ async function setupPlayer() {
         },
       ],
       width: "50%",
-      height: "50%",
       aspectratio: "16:9",
       autostart: "true",
       cast: {},

@@ -6,8 +6,8 @@ body {
 }
 
 #player {
-  /* min-width: 950px;
-  min-height: 535px; */
+  /* min-width: 600px;
+  min-height: 335px; */
   /* width: 50% !important; */
   /* position: relative; */
 }
@@ -15,13 +15,13 @@ body {
 .test {
   width: 170px;
   /* height: round(up, 80%, 50px); */
-  height: 100%;
+  height: 80%;
   gap: 5px;
   overflow: scroll;
   overflow-x: hidden;
   background-color: rgba(1, 29, 119, 0.9);
   z-index: 1000;
-  position: relative;
+  position: absolute;
   opacity: 0;
 }
 
