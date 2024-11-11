@@ -11,12 +11,14 @@ body {
 
 .test {
   width: 170px;
-  height: 536px;
+  height: round(up, 80%, 50px);
   gap: 5px;
   overflow: scroll;
   overflow-x: hidden;
   background-color: rgba(1, 29, 119, 0.9);
-  /* opacity: 0; */
+  z-index: 1000;
+  position: absolute;
+  opacity: 0;
 }
 
 .test:hover {
@@ -34,16 +36,10 @@ body {
   border: 1px solid rgba(0, 0, 0, .15);  
 }
 
-.test button:hover {
+.test button:hover,
+.test button:focus {
+  outline: none;
   background-color: rgba(255, 255, 255, .1) ;
-}
-
-/* .jw-aspect.jw-reset{padding: 0 !important; } */
-.test {
-  /* width: 100px; */
-  height: 88%;
-  z-index: 1000;
-  position: absolute;
 }
 
 .test::-webkit-scrollbar {

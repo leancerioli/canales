@@ -831,10 +831,12 @@ channelList.forEach((e, i) => {
 });
 
 // Crea funcion de seleccionar canales con las flechas
-setTimeout(() => {
+const arrowsInject = setInterval(() => {
+  if(!document.querySelector('.test button')) return
+  clearInterval(arrowsInject)
+  const channelList = document.querySelector('.test')
   const elementos = document.querySelectorAll('[tabindex="0"]'); // Selecciona todos los elementos con tabindex="0"
   let indexActivo = 0;  // Índice del elemento actualmente enfocado
-  console.log(elementos)
 
   // Función para enfocar el siguiente o el anterior elemento
   function enfocarElemento(index) {
@@ -844,26 +846,28 @@ setTimeout(() => {
   }
 
   document.addEventListener('keydown', (e) => {
-    // e.preventDefault()
-    // e.stopImmediatePropagation()
-    // e.stopPropagation()
-    console.log('keydown')
     if (e.key === 'ArrowDown') {
       e.preventDefault()
+      channelList.style.opacity = 1
       // Flecha abajo, mover al siguiente elemento
       indexActivo = (indexActivo + 1) % elementos.length; // Cicla al siguiente
       enfocarElemento(indexActivo);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
+      channelList.style.opacity = 1
       // Flecha arriba, mover al elemento anterior
       indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
       enfocarElemento(indexActivo);
+    } else if (e.key === 'ArrowLeft') {
+      channelList.style.opacity = 0
+    } else if (e.key === 'ArrowRight') {
+      channelList.style.opacity = 1
     }
   });
 
   // Inicialmente enfocar el primer elemento
   // enfocarElemento(indexActivo);
-}, 2500)
+}, 1000)
 
 const playChannel = async (e, channelNumber) => {
   const selectedChannel = e?.target.getAttribute("getURL") || channelList[channelNumber-1].getURL;
@@ -1291,9 +1295,9 @@ const runTimer = () => {
 }
 document.addEventListener('keypress', (e) => {
   // document.querySelector('.input').innerText = e.key
-  // if (!(e.keyCode >= 48 && e.keyCode <= 57)) return
+  if (!(e.keyCode >= 48 && e.keyCode <= 57)) return
+  if (pressed.length > 2) return
   document.querySelector('.channelNumber').style.visibility = 'visible'
-  // if (pressed.length > 2) return
   const channelNumberBox = document.querySelector('.channelNumber span')
   pressed += e.key
   channelNumberBox.innerText = pressed
@@ -1307,7 +1311,7 @@ document.addEventListener('keypress', (e) => {
 
 
 document.addEventListener('keydown', (e) => {
-  document.querySelector('.input').innerText = e.key
+  // document.querySelector('.input').innerText = e.key
 
   // if (e.code === "ArrowDown") {
   //   document.querySelector("[tabindex='0']").focus();
@@ -1319,11 +1323,14 @@ document.addEventListener('keydown', (e) => {
 
 })
 
-setTimeout(() => {
+const channelListInject = setInterval(() => {
+  const player = document.querySelector('#player')
+  if (!player) return
+  clearInterval(channelListInject)
   const midiv = document.createElement("div");
   midiv.classList = 'test'
   midiv.setAttribute('tabindex', -1)
-  document.querySelector('#player').prepend(midiv)
+  player.prepend(midiv)
   document.querySelector(".test").addEventListener("click", playChannel);
   // midiv.focus()
 
@@ -1331,15 +1338,15 @@ setTimeout(() => {
   const midiv2text = document.createElement('span')
   midiv2.classList = 'channelNumber'
   midiv2.append(midiv2text)
-  document.querySelector('#player').prepend(midiv2)
+  player.prepend(midiv2)
 }, 1000)
 
-document.querySelector('#btn1').addEventListener('click', () => {
-  document.querySelector('#span1').innerText = "clickeado boton 1"
-  console.log(window.location.href = 'index.html/test')
-})
+// document.querySelector('#btn1').addEventListener('click', () => {
+//   document.querySelector('#span1').innerText = "clickeado boton 1"
+//   console.log(window.location.href = 'index.html/test')
+// })
 
-document.querySelector('#btn2').addEventListener('click', () => {
-  document.querySelector('#span2').innerText = "clickeado boton 2"
-  document.querySelector('.test').focus()
-})
+// document.querySelector('#btn2').addEventListener('click', () => {
+//   document.querySelector('#span2').innerText = "clickeado boton 2"
+//   document.querySelector('.test').focus()
+// })
