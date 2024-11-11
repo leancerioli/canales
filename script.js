@@ -844,6 +844,10 @@ setTimeout(() => {
   }
 
   document.addEventListener('keydown', (e) => {
+    // e.preventDefault()
+    // e.stopImmediatePropagation()
+    // e.stopPropagation()
+    console.log('keydown')
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       // Flecha abajo, mover al siguiente elemento
@@ -1251,11 +1255,18 @@ async function setupPlayer() {
       // BLOCKING LEFT and RIGHT KEY PRESS
       document.querySelector('#player').querySelectorAll('*:not(div.test)').forEach(e => e.setAttribute('tabindex', -1))
       document.querySelector('#player').setAttribute('tabindex', -1)
+
+      
+      localStorage.setItem("jwplayer.enableShortcuts", "false");
+      localStorage.setItem("jwplayer.mute", "false");
+      localStorage.setItem("jwplayer.volume", "100");
+
       // let all = document.querySelector('#player').getElementsByTagName('*');
       // for (let element of all) {
       //     element.addEventListener("keydown", (e) => {
       //       e.stopImmediatePropagation();
       //       e.stopPropagation();
+      //       e.preventDefault();
       //     }, true);
       // }
 
