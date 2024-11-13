@@ -761,7 +761,7 @@
 //   },
 // ];
 
-import channelList from "/channelList.json" with { type: 'json' };
+import channelList from "/canales/channelList.json" with { type: 'json' };
 const playerInstance = jwplayer("player");
 let getURL = channelList[0].getURL;
 
