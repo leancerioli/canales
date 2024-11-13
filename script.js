@@ -763,7 +763,6 @@
 import channelList from "/channelList.json" with { type: 'json' };
 const playerInstance = jwplayer("player");
 let getURL = channelList[0].getURL;
-let number;
 
 // Crea funcion de seleccionar canales con las flechas
 let indexActivo = 0;  // Índice del elemento actualmente enfocado
@@ -804,6 +803,7 @@ const changeChannel = async (e, channelNumber) => {
 
 }
 
+let number;
 function getChannelID() {
   if (
     getURL == "QTNfQ2luZQ==" ||
