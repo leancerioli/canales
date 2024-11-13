@@ -405,7 +405,7 @@ async function setupPlayer() {
       channelList.forEach((e, i) => {
         const btn = document.createElement("button");
         const cnImage = document.createElement("img");
-        cnImage.src = '/canales/logos/' + (e.img || 'canal.webp')
+        cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/' + (e.img || 'canal.webp')
         const cnName = document.createElement("span");
         cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
         const cnNumber = document.createElement("span");
