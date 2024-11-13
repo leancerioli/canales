@@ -5,7 +5,7 @@ let indexActivo = 0;
 
 // Funcion cambiar canales
 const changeChannel = async (e, channelNumber) => {
-  const selectedChannel = e?.target.getAttribute("getURL") || channelList[channelNumber-1].getURL;
+  const selectedChannel = e?.target.getAttribute("getURL") || e?.target.parentElement.getAttribute("getURL") || channelList[channelNumber-1].getURL;
   const channelInfo = channelList.find((f) => f.getURL == selectedChannel);
   getURL = channelInfo.getURL;
   getChannelID();
@@ -25,7 +25,7 @@ const changeChannel = async (e, channelNumber) => {
     ],
   });
   playerInstance.setMute(0)
-  playerInstance.setVolume(localStorage.getItem("jwplayer.volume"));
+  playerInstance.setVolume(100);
   playerInstance.setCurrentAudioTrack(1);
   playerInstance.setCurrentQuality(1);
 }
@@ -364,7 +364,8 @@ async function setupPlayer() {
     
     playerInstance.on("play", function (e) {
       playerInstance.setCurrentAudioTrack(1)
-      playerInstance.setMute(0);
+      // playerInstance.setMute(0);
+      // playerInstance.setVolume(100);
       if (!languageChangedDuringPlay) {
         var currentLanguage = playerInstance.getCurrentAudioTrack();
         
@@ -380,12 +381,22 @@ async function setupPlayer() {
 
     playerInstance.on('ready', () => {
       playerInstance.setCurrentAudioTrack(1)
+      // Fix live tabindex
+      const liveInterval = setInterval(() => {
+        const live = document.querySelector('#player').querySelector('.jw-text-live')
+        if (live) {
+          clearInterval(liveInterval)
+          document.querySelector('#player').querySelector('.jw-text-live').setAttribute('tabindex', -1)
+        }
+      },500)
+      // Desactiva interaccion con el reproductor
       document.querySelector('#player').querySelectorAll('*:not(div.test)').forEach(e => e.setAttribute('tabindex', -1))
       document.querySelector('#player').setAttribute('tabindex', -1)
       
       // Desactiva keybinds, desmutea reproductor y pantalla completa
       localStorage.setItem("jwplayer.enableShortcuts", "false");
-      playerInstance.setVolume(localStorage.getItem("jwplayer.volume"));
+      playerInstance.setMute(0)
+      playerInstance.setVolume(100);
       playerInstance.setFullscreen(true)
 
       // Crea contenedor de canales
@@ -450,7 +461,6 @@ async function setupPlayer() {
           getChannelList.style.display = 'block'
         }
       });
-
 
     });
   } catch (error) {
