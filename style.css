@@ -5,24 +5,18 @@ body {
   color: white;
 }
 
-#player {
-  /* min-width: 600px;
-  min-height: 335px; */
-  /* width: 50% !important; */
-  /* position: relative; */
-}
-
 .test {
   width: 170px;
   /* height: round(up, 80%, 50px); */
-  height: 80%;
+  height: 100%;
   gap: 5px;
   overflow: scroll;
   overflow-x: hidden;
   background-color: rgba(1, 29, 119, 0.9);
   z-index: 1000;
   position: absolute;
-  opacity: 0;
+  /* opacity: 0; */
+  opacity: 1;
 }
 
 .test:hover {
