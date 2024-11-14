@@ -314,8 +314,6 @@ async function setupPlayer() {
     var mpd = await getValidMpd();
 
     jwplayer("player").setup({
-      playlist: [
-        {
           sources: [
             {
               default: true,
@@ -331,8 +329,6 @@ async function setupPlayer() {
               label: "0",
             },
           ],
-        },
-      ],
       width: "50%",
       aspectratio: "16:9",
       autostart: "true",
@@ -381,7 +377,6 @@ async function setupPlayer() {
     });
     
     playerInstance.on('ready', () => {
-      // document.querySelector('.homeScreen').style.display = 'none'
       // Fix live tabindex
       const liveInterval = setInterval(() => {
         const live = document.querySelector('#player').querySelector('.jw-text-live')
