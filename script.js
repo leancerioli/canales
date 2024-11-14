@@ -382,6 +382,7 @@ async function setupPlayer() {
     
     playerInstance.on('ready', () => {
       // Fix live tabindex
+      document.querySelector('video').classList = ''
       const liveInterval = setInterval(() => {
         const live = document.querySelector('#player').querySelector('.jw-text-live')
         if (live) {
