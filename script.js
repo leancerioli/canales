@@ -26,10 +26,10 @@ const changeChannel = async (e, channelNumber) => {
 
   });
   console.log('cambiando canal')
-  // playerInstance.setMute(0)
-  // playerInstance.setVolume(100);
+  playerInstance.setMute(0)
+  playerInstance.setVolume(100);
   // playerInstance.setCurrentAudioTrack(1);
-  // playerInstance.setCurrentQuality(1);
+  playerInstance.setCurrentQuality(1);
 }
 
 let number;

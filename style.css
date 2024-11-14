@@ -11,13 +11,10 @@ body {
   color: white;
 }
 
-.jw-preview, .ad-placement, .jw-info-overlay, .jw-contract-trigger {
-  display: none !important;
-}
-
 video, .jw-aspect {
   background-color: none;
   background: none;
+  width: 30% !important;
 }
 
 .test {
