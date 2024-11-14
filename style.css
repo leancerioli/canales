@@ -11,7 +11,7 @@ body {
   color: white;
 }
 
-.jw-preview {
+.jw-preview, .ad-placement, .jw-info-overlay, .jw-contract-trigger {
   display: none !important;
 }
 
