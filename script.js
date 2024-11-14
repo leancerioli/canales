@@ -379,8 +379,9 @@ async function setupPlayer() {
         }
       }
     });
-
+    
     playerInstance.on('ready', () => {
+      // document.querySelector('.homeScreen').style.display = 'none'
       // Fix live tabindex
       const liveInterval = setInterval(() => {
         const live = document.querySelector('#player').querySelector('.jw-text-live')
@@ -470,7 +471,6 @@ async function setupPlayer() {
     console.error("No se encontraron URLs válidas.")
   }
 }
-document.querySelector('.homeScreen').style.display = 'none'
 setupPlayer();
 
 // W.I.P: Deteccion controles TV
