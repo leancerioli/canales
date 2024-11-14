@@ -399,7 +399,12 @@ async function setupPlayer() {
       document.querySelector("#player").setAttribute("tabindex", -1);
 
       // Desactiva keybinds, desmutea reproductor y pantalla completa
-      localStorage.setItem("jwplayer.enableShortcuts", "false");
+      if (!localStorage.getItem("jwplayer.enableShortcuts")) {
+        localStorage.setItem("jwplayer.enableShortcuts", "false");
+        localStorage.setItem("jwplayer.bitrateSelection", "5145136");
+        localStorage.setItem("jwplayer.qualityLabel", "1080p");
+        location.reload()
+      }
       playerInstance.setMute(0);
       playerInstance.setVolume(100);
       playerInstance.setFullscreen(true);
