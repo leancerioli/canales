@@ -507,6 +507,6 @@ document.addEventListener('touchmove', (e) => {
   document.querySelector('.input').innerText = 'touch'
 })
 
-// document.addEventListener('keydown', (e) => {
-//   document.querySelector('.input').innerText = e.key
-// })
+document.addEventListener('keydown', (e) => {
+  document.querySelector('.input').innerText = e.key
+})
