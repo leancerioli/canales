@@ -13,23 +13,23 @@ const changeChannel = async (e, channelNumber) => {
   let mpd = await getValidMpd();
   
   playerInstance.load({
-    sources: [
-      {
+
         default: true,
         type: "dash",
         preload: "auto",
         file: mpd,
+        image: '/canales/logos/espn.webp',
         drm: {
           clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
         },
         label: "0",
-      },
-    ],
+
   });
-  playerInstance.setMute(0)
-  playerInstance.setVolume(100);
-  playerInstance.setCurrentAudioTrack(1);
-  playerInstance.setCurrentQuality(1);
+  console.log('cambiando canal')
+  // playerInstance.setMute(0)
+  // playerInstance.setVolume(100);
+  // playerInstance.setCurrentAudioTrack(1);
+  // playerInstance.setCurrentQuality(1);
 }
 
 let number;
@@ -314,6 +314,8 @@ async function setupPlayer() {
     var mpd = await getValidMpd();
 
     jwplayer("player").setup({
+      playlist: [
+        {
           sources: [
             {
               default: true,
@@ -329,6 +331,8 @@ async function setupPlayer() {
               label: "0",
             },
           ],
+        },
+      ],
       width: "50%",
       aspectratio: "16:9",
       autostart: "true",

@@ -15,6 +15,11 @@ body {
   display: none !important;
 }
 
+video, .jw-aspect {
+  background-color: none;
+  background: none;
+}
+
 .test {
   width: 180px;
   /* height: round(up, 80%, 50px); */
