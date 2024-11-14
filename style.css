@@ -11,6 +11,10 @@ body {
   color: white;
 }
 
+.jw-preview {
+  display: none !important;
+}
+
 .test {
   width: 180px;
   /* height: round(up, 80%, 50px); */
