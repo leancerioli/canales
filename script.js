@@ -1,38 +1,33 @@
-// import channelList from "/canales/channelList.json" assert {type: 'json'}
 const playerInstance = jwplayer("player");
 let getURL = channelList[0].getURL;
 let indexActivo = 0;
 
 // Funcion cambiar canales
 const changeChannel = async (e, channelNumber) => {
-  const selectedChannel = e?.target.getAttribute("getURL") || e?.target.parentElement.getAttribute("getURL") || channelList[channelNumber-1].getURL;
+  const selectedChannel =
+    e?.target.getAttribute("getURL") ||
+    e?.target.parentElement.getAttribute("getURL") ||
+    channelList[channelNumber - 1].getURL;
   const channelInfo = channelList.find((f) => f.getURL == selectedChannel);
-  
+
   getURL = channelInfo.getURL;
   getChannelID();
   let mpd = await getValidMpd();
-  
+
   playerInstance.load({
-    source:[
-      {
-        default: true,
-        type: "dash",
-        preload: "auto",
-        file: mpd,
-        image: '/canales/logos/espn.webp',
-        drm: {
-          clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
-        },
-        label: "0",
-      }
-    ],
+    default: true,
+    type: "dash",
+    preload: "auto",
+    file: mpd,
+    drm: {
+      clearkey: { keyId: channelInfo.keyId, key: channelInfo.key }
+    },
   });
-  console.log('cambiando canal')
-  playerInstance.setMute(0)
+
+  playerInstance.setMute(0);
   playerInstance.setVolume(100);
-  // playerInstance.setCurrentAudioTrack(1);
   playerInstance.setCurrentQuality(1);
-}
+};
 
 let number;
 function getChannelID() {
@@ -257,7 +252,7 @@ async function testSubdomains() {
 
     try {
       await testMpdURL(mpdURL);
-            console.log("Subdomain", subdomain, "is working.");
+      console.log("Subdomain", subdomain, "is working.");
     } catch (error) {
       console.error(
         "Subdomain",
@@ -292,7 +287,16 @@ async function getValidMpd() {
   mt2 = [...mt];
   while (mt2.length > 0) {
     var random = Math.floor(Math.random() * mt2.length);
-    var url = "https://" + mt2[random] + ".cvattv.com.ar/live/c" + number + "eds/" + atob(getURL) + "/SA_Live_dash_enc/" + atob(getURL) + ".mpd";
+    var url =
+      "https://" +
+      mt2[random] +
+      ".cvattv.com.ar/live/c" +
+      number +
+      "eds/" +
+      atob(getURL) +
+      "/SA_Live_dash_enc/" +
+      atob(getURL) +
+      ".mpd";
     try {
       let response = await fetch(url);
       if (response.ok) {
@@ -316,25 +320,16 @@ async function setupPlayer() {
     var mpd = await getValidMpd();
 
     jwplayer("player").setup({
-      playlist: [
-        {
-          sources: [
-            {
-              default: true,
-              type: "dash",
-              preload: "auto",
-              file: mpd,
-              drm: {
-                clearkey: {
-                  keyId: channelList[0].keyId,
-                  key: channelList[0].key,
-                },
-              },
-              label: "0",
-            },
-          ],
+      default: true,
+      type: "dash",
+      preload: "auto",
+      file: mpd,
+      drm: {
+        clearkey: {
+          keyId: channelList[0].keyId,
+          key: channelList[0].key,
         },
-      ],
+      },
       width: "50%",
       aspectratio: "16:9",
       autostart: "true",
@@ -366,12 +361,12 @@ async function setupPlayer() {
     var selectedLanguage = 1;
     var selectedLanguage2 = 1;
     var languageChangedDuringPlay = false;
-    
+
     playerInstance.on("play", function (e) {
-      playerInstance.setCurrentAudioTrack(1)
+      playerInstance.setCurrentAudioTrack(1);
       if (!languageChangedDuringPlay) {
         var currentLanguage = playerInstance.getCurrentAudioTrack();
-        
+
         if (
           currentLanguage !== selectedLanguage &&
           currentLanguage !== selectedLanguage2
@@ -381,60 +376,68 @@ async function setupPlayer() {
         }
       }
     });
-    
-    playerInstance.on('ready', () => {
+
+    playerInstance.on("ready", () => {
       // Fix live tabindex
       const liveInterval = setInterval(() => {
-        const live = document.querySelector('#player').querySelector('.jw-text-live')
+        const live = document
+          .querySelector("#player")
+          .querySelector(".jw-text-live");
         if (live) {
-          clearInterval(liveInterval)
-          document.querySelector('#player').querySelector('.jw-text-live').setAttribute('tabindex', -1)
+          clearInterval(liveInterval);
+          document
+            .querySelector("#player")
+            .querySelector(".jw-text-live")
+            .setAttribute("tabindex", -1);
         }
-      },500)
+      }, 500);
       // Desactiva interaccion con el reproductor
-      document.querySelector('#player').querySelectorAll('*:not(div.test)').forEach(e => e.setAttribute('tabindex', -1))
-      document.querySelector('#player').setAttribute('tabindex', -1)
-      
+      document
+        .querySelector("#player")
+        .querySelectorAll("*:not(div.test)")
+        .forEach((e) => e.setAttribute("tabindex", -1));
+      document.querySelector("#player").setAttribute("tabindex", -1);
+
       // Desactiva keybinds, desmutea reproductor y pantalla completa
       localStorage.setItem("jwplayer.enableShortcuts", "false");
-      playerInstance.setMute(0)
+      playerInstance.setMute(0);
       playerInstance.setVolume(100);
-      playerInstance.setFullscreen(true)
+      playerInstance.setFullscreen(true);
 
       // Crea contenedor de canales
       const midiv = document.createElement("div");
-      midiv.classList = 'test'
-      player.prepend(midiv)
+      midiv.classList = "test";
+      player.prepend(midiv);
       document.querySelector(".test").addEventListener("click", changeChannel);
 
       // Crea pop-up seleccion numero de canal
       const midiv2 = document.createElement("div");
-      const midiv2text = document.createElement('span')
-      midiv2.classList = 'channelNumber'
-      midiv2.append(midiv2text)
-      player.prepend(midiv2)
+      const midiv2text = document.createElement("span");
+      midiv2.classList = "channelNumber";
+      midiv2.append(midiv2text);
+      player.prepend(midiv2);
 
       // Crea todos los botones de los canales
       channelList.forEach((e, i) => {
         const btn = document.createElement("button");
         const cnImage = document.createElement("img");
         // cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/' + (e.img || 'canal.webp')
-        cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/canal.webp'
+        cnImage.src =
+          "https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/canal.webp";
         const cnName = document.createElement("span");
         cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
         const cnNumber = document.createElement("span");
-        cnNumber.innerText = i + 1
-        btn.appendChild(cnImage)
-        btn.appendChild(cnName)
-        btn.appendChild(cnNumber)
+        cnNumber.innerText = i + 1;
+        btn.appendChild(cnImage);
+        btn.appendChild(cnName);
+        btn.appendChild(cnNumber);
         btn.setAttribute("getURL", e.getURL);
         btn.setAttribute("tabindex", 0);
         document.querySelector(".test").appendChild(btn);
       });
 
-
       // Cambiar de canales con flechas (↑) (↓)
-      const getChannelList = document.querySelector('.test')
+      const getChannelList = document.querySelector(".test");
       const elementos = document.querySelectorAll('[tabindex="0"]'); // Selecciona todos los elementos con tabindex="0"
 
       // Función para enfocar el siguiente o el anterior elemento
@@ -443,72 +446,77 @@ async function setupPlayer() {
           elementos[index].focus();
         }
       }
-      enfocarElemento(indexActivo)
+      enfocarElemento(indexActivo);
 
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          getChannelList.style.display = 'block'
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          getChannelList.style.display = "block";
           // Flecha abajo, mover al siguiente elemento
           indexActivo = (indexActivo + 1) % elementos.length; // Cicla al siguiente
           enfocarElemento(indexActivo);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          getChannelList.style.display = 'block'
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          getChannelList.style.display = "block";
           // Flecha arriba, mover al elemento anterior
           indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
           enfocarElemento(indexActivo);
-        } else if (e.key === 'ArrowLeft') {
-          getChannelList.style.display = 'none'
-        } else if (e.key === 'ArrowRight') {
-          getChannelList.style.display = 'block'
+        } else if (e.key === "ArrowLeft") {
+          getChannelList.style.display = "none";
+        } else if (e.key === "ArrowRight") {
+          getChannelList.style.display = "block";
           enfocarElemento(indexActivo);
         }
       });
-
     });
   } catch (error) {
     console.error("ddFailed to setup player:", error);
-    console.error("No se encontraron URLs válidas.")
+    console.error("No se encontraron URLs válidas.");
   }
 }
 setupPlayer();
 
 // W.I.P: Deteccion controles TV
-let pressed = ''
+let pressed = "";
 let timer;
 const runTimer = () => {
   timer = setTimeout(() => {
-    indexActivo = Number(pressed) - 1
-    changeChannel(null,pressed);
-    pressed = '';
-    document.querySelector('.channelNumber').style.visibility = 'hidden'
-  }, 2000)
-}
-document.addEventListener('keypress', (e) => {
+    indexActivo = Number(pressed) - 1;
+    changeChannel(null, pressed);
+    pressed = "";
+    document.querySelector(".channelNumber").style.visibility = "hidden";
+  }, 2000);
+};
+document.addEventListener("keypress", (e) => {
   // document.querySelector('.input').innerText = e.key
-  if (!(e.keyCode >= 48 && e.keyCode <= 57)) return
-  if (pressed.length > 2) return
-  document.querySelector('.channelNumber').style.visibility = 'visible'
-  const channelNumberBox = document.querySelector('.channelNumber span')
-  pressed += e.key
-  channelNumberBox.innerText = pressed
-  if (pressed.length >= 1) {clearTimeout(timer);runTimer()}
-})
+  if (!(e.keyCode >= 48 && e.keyCode <= 57)) return;
+  if (pressed.length > 2) return;
+  document.querySelector(".channelNumber").style.visibility = "visible";
+  const channelNumberBox = document.querySelector(".channelNumber span");
+  pressed += e.key;
+  channelNumberBox.innerText = pressed;
+  if (pressed.length >= 1) {
+    clearTimeout(timer);
+    runTimer();
+  }
+});
 
 // Touch slide canales android
 let debounceTimeout;
 const debounceDelay = 100;
-document.addEventListener('touchmove', (e) => {
-  if (!e.target.className.match('jw-reset')) return
+document.addEventListener("touchmove", (e) => {
+  if (!e.target.className.match("jw-reset")) return;
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    document.querySelector('.test').style.display = document.querySelector('.test').style.display == 'none' ? 'block' : 'none'
+    document.querySelector(".test").style.display =
+      document.querySelector(".test").style.display == "none"
+        ? "block"
+        : "none";
   }, debounceDelay);
 
-  document.querySelector('.input').innerText = 'touch'
-})
+  document.querySelector(".input").innerText = "touch";
+});
 
-document.addEventListener('keydown', (e) => {
-  document.querySelector('.input').innerText = e.key
-})
+document.addEventListener("keydown", (e) => {
+  document.querySelector(".input").innerText = e.key;
+});
