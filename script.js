@@ -367,8 +367,6 @@ async function setupPlayer() {
     
     playerInstance.on("play", function (e) {
       playerInstance.setCurrentAudioTrack(1)
-      // playerInstance.setMute(0);
-      // playerInstance.setVolume(100);
       if (!languageChangedDuringPlay) {
         var currentLanguage = playerInstance.getCurrentAudioTrack();
         
@@ -383,7 +381,7 @@ async function setupPlayer() {
     });
 
     playerInstance.on('ready', () => {
-      playerInstance.setCurrentAudioTrack(1)
+      document.querySelector('.homeScreen').style.display = 'none'
       // Fix live tabindex
       const liveInterval = setInterval(() => {
         const live = document.querySelector('#player').querySelector('.jw-text-live')
@@ -463,6 +461,7 @@ async function setupPlayer() {
           getChannelList.style.display = 'none'
         } else if (e.key === 'ArrowRight') {
           getChannelList.style.display = 'block'
+          enfocarElemento(indexActivo);
         }
       });
 
@@ -509,6 +508,6 @@ document.addEventListener('touchmove', (e) => {
   document.querySelector('.input').innerText = 'touch'
 })
 
-document.addEventListener('keydown', (e) => {
-  document.querySelector('.input').innerText = e.key
-})
+// document.addEventListener('keydown', (e) => {
+//   document.querySelector('.input').innerText = e.key
+// })
