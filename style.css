@@ -10,6 +10,17 @@ body {
   background-color: #000000;
   color: white;
 }
+
+.jw-video-thumbnail,
+.jw-video-thumbnail-generated,
+.jw-video-thumbnail-visible,
+.jw-video-thumbnail-completed,
+.jw-video-thumbnail-container,
+.jw-related-shelf-item-image
+{
+  display: none !important;
+}
+
 .test {
   width: 180px;
   /* height: round(up, 80%, 50px); */
