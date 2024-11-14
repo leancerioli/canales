@@ -1,4 +1,4 @@
-import channelList from "/canales/channelList.json" with { type: 'json' };
+// import channelList from "/canales/channelList.json" assert {type: 'json'}
 const playerInstance = jwplayer("player");
 let getURL = channelList[0].getURL;
 let indexActivo = 0;
@@ -7,6 +7,7 @@ let indexActivo = 0;
 const changeChannel = async (e, channelNumber) => {
   const selectedChannel = e?.target.getAttribute("getURL") || e?.target.parentElement.getAttribute("getURL") || channelList[channelNumber-1].getURL;
   const channelInfo = channelList.find((f) => f.getURL == selectedChannel);
+  
   getURL = channelInfo.getURL;
   getChannelID();
   let mpd = await getValidMpd();
@@ -16,6 +17,7 @@ const changeChannel = async (e, channelNumber) => {
       {
         default: true,
         type: "dash",
+        preload: "auto",
         file: mpd,
         drm: {
           clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
@@ -318,6 +320,7 @@ async function setupPlayer() {
             {
               default: true,
               type: "dash",
+              preload: "auto",
               file: mpd,
               drm: {
                 clearkey: {
@@ -416,7 +419,8 @@ async function setupPlayer() {
       channelList.forEach((e, i) => {
         const btn = document.createElement("button");
         const cnImage = document.createElement("img");
-        cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/' + (e.img || 'canal.webp')
+        // cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/' + (e.img || 'canal.webp')
+        cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/canal.webp'
         const cnName = document.createElement("span");
         cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
         const cnNumber = document.createElement("span");
