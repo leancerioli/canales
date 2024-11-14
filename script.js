@@ -13,7 +13,8 @@ const changeChannel = async (e, channelNumber) => {
   let mpd = await getValidMpd();
   
   playerInstance.load({
-
+    source:[
+      {
         default: true,
         type: "dash",
         preload: "auto",
@@ -23,7 +24,8 @@ const changeChannel = async (e, channelNumber) => {
           clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
         },
         label: "0",
-
+      }
+    ],
   });
   console.log('cambiando canal')
   playerInstance.setMute(0)
@@ -382,7 +384,6 @@ async function setupPlayer() {
     
     playerInstance.on('ready', () => {
       // Fix live tabindex
-      document.querySelector('video').classList = ''
       const liveInterval = setInterval(() => {
         const live = document.querySelector('#player').querySelector('.jw-text-live')
         if (live) {
