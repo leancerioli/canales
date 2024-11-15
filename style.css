@@ -27,6 +27,7 @@ body {
   background-color: rgba(32, 41, 56, 0.9);
   z-index: 1000;
   position: absolute;
+  transition: transform ease .5s;
 }
 
 .test:hover {

@@ -24,7 +24,6 @@ const changeChannel = async (e, channelNumber, refreshList) => {
         drm: {
           clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
         },
-        label: "0",
       },
     ],
   });
@@ -331,63 +330,25 @@ async function setupPlayer() {
 
     jwplayer("player").setup({
       playlist: [{
-        sources: [
-                {
-                    default: true,
-                    type: "dash",
-                    file: mpd,
-                    drm: {
-                        clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
-                    },
-                    label: "0"
-                }
-            ]
-        }],
-        width: "100%",
-        height: "100vh",
-        aspectratio: "16:9",
-        autostart: "true",
-        cast: {},
-        sharing: {}
-      });
-
-    if (getURL == "Rm94X1Nwb3J0c19QcmVtaXVuX0hE") {
-      playerInstance.on("error", function () {
-        var redirectUrl =
-          "https://nebunexa.co/mpdk/?get=aHR0cHM6Ly9weWxvY2FsbGl2ZWNoYW5uZWxkYXNoLmxjZG4uY2xhcm90di5jb20ucHkvQ29udGVudC9EQVNIX0RBU0hfRksvTGl2ZS9jaGFubmVsKEZPWF9TUE9SVFNfUFJFTUlVTSkvbWFzdGVyLm1wZA==&key=Y2Y0Yzc4ZTIxZmUyMTlhZDRhYTU0MjlhZTkzZDQzYmU=&key2=MjZkYjM4YTk2OGExYjY1ZDcyNzBlZTkyNjMyYTdjZTE=";
-
-        redirectUrl += "&start=true";
-
-        window.location = redirectUrl;
-      });
-    } else if (getURL == "VE5UX1Nwb3J0c19IRA") {
-      playerInstance.on("error", function () {
-        var redirectUrl =
-          "https://nebunexa.co/mpdk/?get=aHR0cHM6Ly9weWxvY2FsbGl2ZWNoYW5uZWxkYXNoLmxjZG4uY2xhcm90di5jb20ucHkvQ29udGVudC9EQVNIX0RBU0hfRksvTGl2ZS9jaGFubmVsKFROVF9TUE9SVFMpL21hc3Rlci5tcGQ=&key=NDVkYTFkZjZiN2RhYzZmNDZmMGM5NWI1ODUwYmMyZjI=&key2=YTE5NWRjMDIwNjAzNWIyY2M4YmUyZDQ1MmU3MWI2MWQ=";
-
-        redirectUrl += "&start=true";
-
-        window.location = redirectUrl;
-      });
-    }
-
-    var selectedLanguage = 1;
-    var selectedLanguage2 = 1;
-    var languageChangedDuringPlay = false;
+        sources: [{
+          default: true,
+          type: "dash",
+          file: mpd,
+          drm: {
+            clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
+          }
+        }]
+      }],
+      width: "100%",
+      height: "100vh",
+      aspectratio: "16:9",
+      autostart: "true",
+      cast: {},
+      sharing: {}
+    });
 
     playerInstance.on("play", function (e) {
       playerInstance.setCurrentAudioTrack(1);
-      if (!languageChangedDuringPlay) {
-        var currentLanguage = playerInstance.getCurrentAudioTrack();
-
-        if (
-          currentLanguage !== selectedLanguage &&
-          currentLanguage !== selectedLanguage2
-        ) {
-          // playerInstance.setCurrentAudioTrack(selectedLanguage);
-          languageChangedDuringPlay = true;
-        }
-      }
     });
 
     playerInstance.on("error", (e) => {
@@ -525,20 +486,36 @@ document.addEventListener("keypress", (e) => {
 });
 
 // Touch slide canales android
+const debounceDelay = 50;
 let debounceTimeout;
-const debounceDelay = 100;
-document.addEventListener("touchmove", (e) => {
+let startX = 0;
+
+function onTouchStart(e) {
+  startX = e.touches[0].clientX;
+}
+
+function onTouchMove(e) {
+  const chnList = document.querySelector(".test")
+  const currentX = e.touches[0].clientX; 
+
   if (!e.target.className.match("jw-reset")) return;
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    document.querySelector(".test").style.display =
-      document.querySelector(".test").style.display == "none"
-        ? "block"
-        : "none";
+        if (currentX < startX) {
+          console.log("Movimiento hacia la izquierda");
+          // chnList.style.display = "none"
+          chnList.style.transform = `translateX(-${chnList.offsetWidth}px)`
+        } else {
+          console.log("Movimiento hacia la derecha");
+          // chnList.style.display = "block"
+          chnList.style.transform = "translateX(0px)"
+        }
   }, debounceDelay);
+}
 
-  // document.querySelector(".input").innerText = "touch";
-});
+document.addEventListener('touchstart', onTouchStart);
+document.addEventListener('touchmove', onTouchMove);
+
 
 // document.addEventListener("keydown", (e) => {
 //   document.querySelector(".input").innerText = e.key;
