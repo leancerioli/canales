@@ -3,26 +3,33 @@ let getURL = channelList[0].getURL;
 let indexActivo = 0;
 
 // Funcion cambiar canales
-const changeChannel = async (e, channelNumber) => {
+const changeChannel = async (e, channelNumber, refreshList) => {
   const selectedChannel =
     e?.target.getAttribute("getURL") ||
     e?.target.parentElement.getAttribute("getURL") ||
-    channelList[channelNumber - 1].getURL;
+    channelList[channelNumber - 1]?.getURL ||
+    refreshList;
   const channelInfo = channelList.find((f) => f.getURL == selectedChannel);
 
-  getURL = channelInfo.getURL;
+  getURL = channelInfo?.getURL;
   getChannelID();
   let mpd = await getValidMpd();
 
   playerInstance.load({
-    default: true,
-    type: "dash",
-    preload: "auto",
-    file: mpd,
-    drm: {
-      clearkey: { keyId: channelInfo.keyId, key: channelInfo.key }
-    },
+    sources: [
+      {
+        default: true,
+        type: "dash",
+        file: mpd,
+        drm: {
+          clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
+        },
+        label: "0",
+      },
+    ],
   });
+  playerInstance.stop()
+  playerInstance.play()
 
   playerInstance.setMute(0);
   playerInstance.setVolume(100);
@@ -234,7 +241,7 @@ let mt = [
   "edge-mix03-mus",
 ];
 
-// let mt = ["edge-live13-sl"]
+// let mt = ["edge-vod01-cen"]
 
 async function testSubdomains() {
   for (let i = 0; i < mt.length; i++) {
@@ -282,9 +289,10 @@ function testMpdURL(url) {
   });
 }
 
+let lastMt = ''
+let mt2;
+mt2 = [...mt];
 async function getValidMpd() {
-  let mt2;
-  mt2 = [...mt];
   while (mt2.length > 0) {
     var random = Math.floor(Math.random() * mt2.length);
     var url =
@@ -301,6 +309,7 @@ async function getValidMpd() {
       let response = await fetch(url);
       if (response.ok) {
         console.log("Selected mt:", mt2[random]);
+        lastMt = mt2[random]
         return url;
       } else {
         console.log("Invalid URL, status:", response.status);
@@ -311,6 +320,7 @@ async function getValidMpd() {
       mt2.splice(random, 1); // Remove the invalid entry from the array
     }
   }
+  mt2 = [...mt]
   alert("El canal no funciona en este momento.");
   throw new Error("No valid MPD URL found");
 }
@@ -320,23 +330,26 @@ async function setupPlayer() {
     var mpd = await getValidMpd();
 
     jwplayer("player").setup({
-      default: true,
-      type: "dash",
-      preload: "auto",
-      file: mpd,
-      drm: {
-        clearkey: {
-          keyId: channelList[0].keyId,
-          key: channelList[0].key,
-        },
-      },
-      width: "50%",
-      aspectratio: "16:9",
-      autostart: "true",
-      cast: {},
-      sharing: {},
-      defaultBandwidthEstimate: 1,
-    });
+      playlist: [{
+        sources: [
+                {
+                    default: true,
+                    type: "dash",
+                    file: mpd,
+                    drm: {
+                        clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
+                    },
+                    label: "0"
+                }
+            ]
+        }],
+        width: "100%",
+        height: "100vh",
+        aspectratio: "16:9",
+        autostart: "true",
+        cast: {},
+        sharing: {}
+      });
 
     if (getURL == "Rm94X1Nwb3J0c19QcmVtaXVuX0hE") {
       playerInstance.on("error", function () {
@@ -376,6 +389,11 @@ async function setupPlayer() {
         }
       }
     });
+
+    playerInstance.on("error", (e) => {
+      mt2.splice(mt2.indexOf(lastMt), 1)
+      changeChannel(null, null, getURL)
+    })
 
     playerInstance.on("ready", () => {
       // Fix live tabindex
@@ -487,7 +505,7 @@ let timer;
 const runTimer = () => {
   timer = setTimeout(() => {
     indexActivo = Number(pressed) - 1;
-    changeChannel(null, pressed);
+    changeChannel(null, pressed, null);
     pressed = "";
     document.querySelector(".channelNumber").style.visibility = "hidden";
   }, 2000);
@@ -519,9 +537,9 @@ document.addEventListener("touchmove", (e) => {
         : "none";
   }, debounceDelay);
 
-  document.querySelector(".input").innerText = "touch";
+  // document.querySelector(".input").innerText = "touch";
 });
 
-document.addEventListener("keydown", (e) => {
-  document.querySelector(".input").innerText = e.key;
-});
+// document.addEventListener("keydown", (e) => {
+//   document.querySelector(".input").innerText = e.key;
+// });
