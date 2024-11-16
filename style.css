@@ -46,7 +46,7 @@ body {
   color: white;
   border: 1px solid rgba(0, 0, 0, .15);
   display: grid;
-  grid-template-columns: auto 1fr .24fr;
+  grid-template-columns: .35fr 1fr .24fr;
   gap: 5px;
   align-items: center;
   text-align: start;
@@ -69,8 +69,13 @@ body {
 }
 
 .test button img {
-  width: 40px;
+  max-width: 40px;
+  max-height: 30px;
+  height: auto;
+  object-fit: scale-down;
   aspect-ratio: auto;
+  /* background-color: blue; */
+  justify-self: center;
 }
 
 .test button:hover,

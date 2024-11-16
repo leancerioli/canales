@@ -240,7 +240,7 @@ let mt = [
   "edge-mix03-mus",
 ];
 
-// let mt = ["edge-vod01-cen"]
+// let mt = ["edge-mix05-coe"]
 
 async function testSubdomains() {
   for (let i = 0; i < mt.length; i++) {
@@ -405,9 +405,8 @@ async function setupPlayer() {
       channelList.forEach((e, i) => {
         const btn = document.createElement("button");
         const cnImage = document.createElement("img");
-        // cnImage.src = 'https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/' + (e.img || 'canal.webp')
-        cnImage.src =
-          "https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/canal.webp";
+        cnImage.src = '/canales/canales/logos/' + (e.img || 'canal.webp')
+        // cnImage.src = "https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/canal.webp";
         const cnName = document.createElement("span");
         cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
         const cnNumber = document.createElement("span");
