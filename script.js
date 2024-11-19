@@ -1,19 +1,181 @@
+jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo"
 const playerInstance = jwplayer("player");
-let getURL = channelList[0].getURL;
+let currentChannel = channelList[0];
 let indexActivo = 0;
+const platform = window.navigator.platform
+const crossIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" style="fill: rgba(255, 255, 255, 1);transform: ;msFilter:;"><path d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z"></path></svg>'
+const listIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" style="fill: rgba(255 , 255  , 255 , 1);transform: ;msFilter:;"><path d="M5.282 12.064c-.428.328-.72.609-.875.851-.155.24-.249.498-.279.768h2.679v-.748H5.413c.081-.081.152-.151.212-.201.062-.05.182-.142.361-.27.303-.218.511-.42.626-.604.116-.186.173-.375.173-.578a.898.898 0 0 0-.151-.512.892.892 0 0 0-.412-.341c-.174-.076-.419-.111-.733-.111-.3 0-.537.038-.706.114a.889.889 0 0 0-.396.338c-.094.143-.159.346-.194.604l.894.076c.025-.188.074-.317.147-.394a.375.375 0 0 1 .279-.108c.11 0 .2.035.272.108a.344.344 0 0 1 .108.258.55.55 0 0 1-.108.297c-.074.102-.241.254-.503.453zm.055 6.386a.398.398 0 0 1-.282-.105c-.074-.07-.128-.195-.162-.378L4 18.085c.059.204.142.372.251.506.109.133.248.235.417.306.168.069.399.103.692.103.3 0 .541-.047.725-.14a1 1 0 0 0 .424-.403c.098-.175.146-.354.146-.544a.823.823 0 0 0-.088-.393.708.708 0 0 0-.249-.261 1.015 1.015 0 0 0-.286-.11.943.943 0 0 0 .345-.299.673.673 0 0 0 .113-.383.747.747 0 0 0-.281-.596c-.187-.159-.49-.238-.909-.238-.365 0-.648.072-.847.219-.2.143-.334.353-.404.626l.844.151c.023-.162.067-.274.133-.338s.151-.098.257-.098a.33.33 0 0 1 .241.089c.059.06.087.139.087.238 0 .104-.038.193-.117.27s-.177.112-.293.112a.907.907 0 0 1-.116-.011l-.045.649a1.13 1.13 0 0 1 .289-.056c.132 0 .237.041.313.126.077.082.115.199.115.352 0 .146-.04.266-.119.354a.394.394 0 0 1-.301.134zm.948-10.083V5h-.739a1.47 1.47 0 0 1-.394.523c-.168.142-.404.262-.708.365v.754a2.595 2.595 0 0 0 .937-.48v2.206h.904zM9 6h11v2H9zm0 5h11v2H9zm0 5h11v2H9z"></path></svg>'
+
+async function setupPlayer() {
+  try {
+    var mpd = await getValidMpd();
+
+    jwplayer("player").setup({
+      playlist: [{
+        sources: [{
+          default: true,
+          type: "dash",
+          file: mpd,
+          drm: {
+            clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
+          }
+        }]
+      }],
+      width: "100%",
+      height: "100vh",
+      aspectratio: "16:9",
+      autostart: "true",
+      cast: {},
+      sharing: {}
+    });
+
+    playerInstance.on("play", function (e) {
+      playerInstance.setCurrentAudioTrack(1);
+    });
+
+    playerInstance.on("error", (e) => {
+      mt2.splice(mt2.indexOf(lastMt), 1)
+      changeChannel(null, null, currentChannel.getURL)
+    })
+
+    playerInstance.on("ready", () => {
+      // Fix live tabindex
+      const liveInterval = setInterval(() => {
+        const live = document.querySelector("#player").querySelector(".jw-text-live");
+        if (live) {
+          clearInterval(liveInterval);
+          document.querySelector("#player").querySelector(".jw-text-live").setAttribute("tabindex", -1);
+        }
+      }, 500);
+      // Desactiva interaccion con el reproductor
+      document.querySelector("#player").querySelectorAll("*:not(div.channelList)").forEach((e) => e.setAttribute("tabindex", -1));
+      document.querySelector("#player").setAttribute("tabindex", -1);
+
+      // Desactiva keybinds, desmutea reproductor y pantalla completa
+      if (!localStorage.getItem("jwplayer.enableShortcuts")) {
+        localStorage.setItem("jwplayer.enableShortcuts", "false");
+        localStorage.setItem("jwplayer.bitrateSelection", "5145136");
+        localStorage.setItem("jwplayer.qualityLabel", "1080p");
+        location.reload()
+      }
+      playerInstance.setMute(0);
+      playerInstance.setVolume(100);
+      // playerInstance.setFullscreen(true);
+
+      // Crea contenedor de canales
+      const channelListElement = document.createElement("div");
+      channelListElement.classList = "channelList";
+      channelListElement.style.display = 'block'
+      channelListElement.addEventListener("click", changeChannel);
+      player.prepend(channelListElement);
+
+      // Crea pop-up seleccion numero de canal
+      const channelNumberElement = document.createElement("div");
+      const channelNumberElementText = document.createElement("span");
+      channelNumberElement.classList = "channelNumber";
+      channelNumberElement.append(channelNumberElementText);
+      player.prepend(channelNumberElement);
+
+      // Crea todos los botones de los canales
+      channelList.forEach((e, i) => {
+        const btn = document.createElement("button");
+        const cnImage = document.createElement("img");
+        cnImage.src = '/canales/canales/logos/' + (e.img || 'canal.webp')
+        const cnName = document.createElement("span");
+        cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
+        const cnNumber = document.createElement("span");
+        cnNumber.innerText = i + 1;
+        btn.appendChild(cnImage);
+        btn.appendChild(cnName);
+        btn.appendChild(cnNumber);
+        btn.setAttribute("getURL", e.getURL);
+        btn.setAttribute("tabindex", 0);
+        document.querySelector(".channelList").appendChild(btn);
+      });
+
+      // Cambiar de canales con flechas (↑) (↓)
+      const getChannelList = document.querySelector(".channelList");
+      const elementos = document.querySelectorAll('[tabindex="0"]'); // Selecciona todos los elementos con tabindex="0"
+
+      // Función para enfocar el siguiente o el anterior elemento
+      function enfocarElemento(index) {
+        if (index >= 0 && index < elementos.length) {
+          elementos[index].focus();
+        }
+      }
+      enfocarElemento(indexActivo);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          getChannelList.style.display = "block";
+          // Flecha abajo, mover al siguiente elemento
+          indexActivo = (indexActivo + 1) % elementos.length; // Cicla al siguiente
+          enfocarElemento(indexActivo);
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          getChannelList.style.display = "block";
+          // Flecha arriba, mover al elemento anterior
+          indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
+          enfocarElemento(indexActivo);
+        } else if (e.key === "ArrowLeft") {
+          platform == 'Win32' && getChannelList.style.display == "block" ? hideArrow() : getChannelList.style.display = "none";
+        } else if (e.key === "ArrowRight") {
+          platform == 'Win32' && getChannelList.style.display == "none" ? hideArrow() : getChannelList.style.display = "block";
+          enfocarElemento(indexActivo);
+        }
+      });
+
+      
+      if (platform == 'Win32') {
+        const listArrow = document.createElement("span")
+        listArrow.classList = "channelArrow";
+        listArrow.innerHTML = crossIcon
+        // listArrow.innerHTML = 
+        listArrow.addEventListener("click", hideArrow);
+        listArrow.style.left = channelListElement.offsetWidth + 'px'
+        player.append(listArrow)
+
+        function hideArrow () {
+          const getChannelList = document.querySelector(".channelList");
+          let visible = getChannelList.style.display
+          if (visible == 'block'){
+            getChannelList.style.display = 'none'
+            listArrow.style.left = 0
+            listArrow.innerHTML = listIcon
+            listArrow.classList.add('fs')
+          } else {
+            getChannelList.style.display = 'block'
+            listArrow.style.left = getChannelList.offsetWidth + 'px'
+            listArrow.innerHTML = crossIcon
+            listArrow.classList.remove('fs')
+            enfocarElemento(indexActivo)
+          }
+        }
+      }
+      
+
+    });
+  } catch (error) {
+    console.error("Failed to setup player:", error);
+    console.error("No se encontraron URLs válidas.");
+  }
+}
 
 // Funcion cambiar canales
 const changeChannel = async (e, channelNumber, refreshList) => {
   const selectedChannel =
-    e?.target.getAttribute("getURL") ||
-    e?.target.parentElement.getAttribute("getURL") ||
-    channelList[channelNumber - 1]?.getURL ||
-    refreshList;
+  e?.target.getAttribute("getURL") ||
+  e?.target.parentElement.getAttribute("getURL") ||
+  channelList[channelNumber - 1]?.getURL ||
+  refreshList;
   const channelInfo = channelList.find((f) => f.getURL == selectedChannel);
+  const mpd = await getValidMpd(channelInfo);
 
-  getURL = channelInfo?.getURL;
-  getChannelID();
-  let mpd = await getValidMpd();
+  if (platform == 'Win32') {
+    const currentChannelNum = channelList.findIndex((f) => f.getURL == selectedChannel)
+    indexActivo = currentChannelNum
+  }
 
   playerInstance.load({
     sources: [
@@ -29,169 +191,10 @@ const changeChannel = async (e, channelNumber, refreshList) => {
   });
   playerInstance.stop()
   playerInstance.play()
-
   playerInstance.setMute(0);
   playerInstance.setVolume(100);
   playerInstance.setCurrentQuality(1);
 };
-
-let number;
-function getChannelID() {
-  if (
-    getURL == "QTNfQ2luZQ==" ||
-    getURL == "Rmxvd19NdXNpY19YUA==" ||
-    getURL == "Rmxvd19NdXNpY18x" ||
-    getURL == "Rmxvd19NdXNpY18y" ||
-    getURL == "Rmxvd19NdXNpY18z" ||
-    getURL == "QUVIRA==" ||
-    getURL == "SG9sYV9UVg==" ||
-    getURL == "QVhOSEQ=" ||
-    getURL == "TVRWMDA=" ||
-    getURL == "V2FybmVySEQ=" ||
-    getURL == "R0VOX1RW" ||
-    getURL == "Rm94X1Nwb3J0c19QcmVtaXVuX0hE" ||
-    getURL == "VG9kb05vdGljaWFz" ||
-    getURL == "VHlDU3BvcnQ" ||
-    getURL == "QW1lcmljYTI0" ||
-    getURL == "QzVO" ||
-    getURL == "TGFfTmFjaW9u" ||
-    getURL == "Q3JvbmljYVRW" ||
-    getURL == "Q2FuYWxfOF9UdWN1bWFu" ||
-    getURL == "UGFyYWd1YXlfVFY=" ||
-    getURL == "UGFyYW1vdW50" ||
-    getURL == "Q29tZWR5Q2VudHJhbA" ||
-    getURL == "Rmxvd19NdXNpY18z" ||
-    getURL == "Qm9vbWVyYW5n" ||
-    getURL == "RHJlYW13b3Jrcw==" ||
-    getURL == "QW5pbWFsUGxhbmV0" ||
-    getURL == "SGlzdG9yeUhE" ||
-    getURL == "SUQ=" ||
-    getURL == "QnJhdm9UVg==" ||
-    getURL == "U29ueUhE" ||
-    getURL == "VHJ1VFY=" ||
-    getURL == "SEJPX1BPUA==" ||
-    getURL == "RGlzY292ZXJ5VHVyYm8=" ||
-    getURL == "RGlzbmV5SnI=" ||
-    getURL == "SW52ZXN0aWdhY2lvbl9QZXJpb2Rpc3RpY2E=" ||
-    getURL == "Rm94U3BvcnRzMl9VWQ==" ||
-    getURL == "RVNQTjQ=" ||
-    getURL == "Rm94U3BvcnRzM19VWQ==" ||
-    getURL == "RXZlbnRvc19IRF9VeQ=="
-  )
-    number = 7;
-  else if (
-    getURL == "RVNQTjJfQXJn" ||
-    getURL == "Q2luZW1heA==" ||
-    getURL == "RXZlbnRvc18yX0hE" ||
-    getURL == "Q2FuYWxfOF9DQkE" ||
-    getURL == "MjZfVFZfSEQ" ||
-    getURL == "RGlwdXRhZG9zX1RW" ||
-    getURL == "QXJnZW50aW5pc2ltYQ" ||
-    getURL == "TWV0cm8" ||
-    getURL == "QkJDX1dvcmxkX05ld3M" ||
-    getURL == "VGhlYXRlcl9IRA==" ||
-    getURL == "R2xpdHo=" ||
-    getURL == "UXVpZXJvX0hE" ||
-    getURL == "RGlzY292ZXJ5X1dvcmxkX0hE" ||
-    getURL == "RXVyb2NoYW5uZWw=" ||
-    getURL == "RGlzY292ZXJ5X1NjaWVuY2U=" ||
-    getURL == "SU5DQUFfVHY=" ||
-    getURL == "VFY1X01vbmRl" ||
-    getURL == "TVRWX0hpdHM=" ||
-    getURL == "TVRWX0hE" ||
-    getURL == "Tmlja19Kcg==" ||
-    getURL == "VFZfRXNwYW5h" ||
-    getURL == "V09CSQ==" ||
-    getURL == "Vm9sdmVy" ||
-    getURL == "VGVsZXN1cg==" ||
-    getURL == "TGlmZXRpbWU=" ||
-    getURL == "QW50ZW5hXzM=" ||
-    getURL == "Rm94X05ld3M=" ||
-    getURL == "VHZfQ2hpbGU=" ||
-    getURL == "TWFzX0NoaWM=" ||
-    getURL == "U3R1ZGlvX1VuaXZlcnNhbA==" ||
-    getURL == "SVNBVA==" ||
-    getURL == "U3VuX0NoYW5uZWw=" ||
-    getURL == "UkFJ" ||
-    getURL == "VmVudXM=" ||
-    getURL == "U2V4dHJlbWU" ||
-    getURL == "UGxheWJveQ" ||
-    getURL == "VE5UX1Nwb3J0c19IRA" ||
-    getURL == "VGVsZWZlSEQ=" ||
-    getURL == "Q2FuYWw3" ||
-    getURL == "RW5jdWVudHJv" ||
-    getURL == "VGVsZW1heA" ||
-    getURL == "TmV0X1RW" ||
-    getURL == "Q2FuYWxfMTJfQ0JB" ||
-    getURL == "RWxfR2FyYWdl" ||
-    getURL == "RmlsbV9BcnRz" ||
-    getURL == "VW5pdmVyc2FsX0NoYW5uZWxfSEQ=" ||
-    getURL == "RXVyb3BhX0V1cm9wYQ" ||
-    getURL == "RXVyb25ld3M=" ||
-    getURL == "Rm9vZF9OZXR3b3Jr" ||
-    getURL == "RV9FbnRlcnRhaW5tZW50X1RlbGV2aXNpb24=" ||
-    getURL == "Q00=" ||
-    getURL == "UEFLQV9QQUtB" ||
-    getURL == "SGlzdG9yeV8y" ||
-    getURL == "U3lGeQ==" ||
-    getURL == "VEJT" ||
-    getURL == "VENN" ||
-    getURL == "SEJPXzI=" ||
-    getURL == "SEJPX1BsdXM=" ||
-    getURL == "SEJPX0ZhbWlseQ==" ||
-    getURL == "SEJPX0V4dHJlbWU=" ||
-    getURL == "SEJPX011bmRp" ||
-    getURL == "SEJPX1NpZ25hdHVyZQ==" ||
-    getURL == "Q2FuYWxfUnVyYWw=" ||
-    getURL == "VExD" ||
-    getURL == "Q2FuYWxfZGVfbGFfY2l1ZGFk" ||
-    getURL == "RGlzY292ZXJ5X0tpZHM=" ||
-    getURL == "SFRW" ||
-    getURL == "TkJBX1RW" ||
-    getURL == "VW5pdmVyc2FsX0NpbmVtYQ==" ||
-    getURL == "VW5pdmVyc2FsX0NvbWVkeQ==" ||
-    getURL == "dW5pdmVyc2FsX0NyaW1l" ||
-    getURL == "VW5pdmVyc2FsX1ByZW1pZXJl" ||
-    getURL == "VW5pdmVyc2FsX1JlYWxpdHk=" ||
-    getURL == "RXZlbnRvc18yX0hE" ||
-    getURL == "Q2FuYWxfZGVfbGFzX2VzdHJlbGxhcw=="
-  )
-    number = 6;
-  else if (getURL == "QzlOX0M0") number = 5;
-  else if (
-    getURL == "RGlzY292ZXJ5SG9tZUhlYWx0aEhE" ||
-    getURL == "TmF0R2VvSEQ=" ||
-    getURL == "VE5UX0hEX0FyZw==" ||
-    getURL == "VE5UU2VyaWVz" ||
-    getURL == "Q2FydG9vbk5ldHdvcms=" ||
-    getURL == "Tmlja2Vsb2Rlb24=" ||
-    getURL == "QWR1bHRfU3dpbQ==" ||
-    getURL == "RXZlbnRvczFIRA"
-  )
-    number = 3;
-  else if (
-    getURL == "Q2FuYWxfNV9Sb3Nhcmlv" ||
-    getURL == "VEVMRUZVVFVST19DNA==" ||
-    getURL == "VGVsZWZlX05ldXF1ZW4=" ||
-    getURL == "VGVsZWZlX1NhbHRh" ||
-    getURL == "U05UX0M0" ||
-    getURL == "UEFSQVZJU0lPTl9DNA==" ||
-    getURL == "Tk9USUNJQVNfUFlfQzQ=" ||
-    getURL == "Tk9USUNJQVNfUFlfQzQ=" ||
-    getURL == "UEFSQVZJU0lPTl9DNA==" ||
-    getURL == "TEFfVEVMRV9DNA==" ||
-    getURL == "U1VSX1RWX0M0" ||
-    getURL == "Q2FuYWwxMlVSVQ==" ||
-    getURL == "RGlzY292ZXJ5SG9tZUhlYWx0aEhE" ||
-    getURL == "Q2FuYWw0X1VSVQ==" ||
-    getURL == "SEJPSEQ=" ||
-    getURL == "Q2FuYWwxMF9VUlU=" ||
-    getURL == "UlBDX0M0"
-  )
-    number = 4;
-  else number = 3;
-}
-getChannelID();
 
 let mt = [
   "edge-live01-mun",
@@ -289,21 +292,13 @@ function testMpdURL(url) {
 }
 
 let lastMt = ''
-let mt2;
-mt2 = [...mt];
-async function getValidMpd() {
+let mt2 = [...mt];
+async function getValidMpd(channelInfo) {
+  const channelToLoad = channelInfo || channelList[0];
+  currentChannel = channelToLoad;
   while (mt2.length > 0) {
-    var random = Math.floor(Math.random() * mt2.length);
-    var url =
-      "https://" +
-      mt2[random] +
-      ".cvattv.com.ar/live/c" +
-      number +
-      "eds/" +
-      atob(getURL) +
-      "/SA_Live_dash_enc/" +
-      atob(getURL) +
-      ".mpd";
+    let random = Math.floor(Math.random() * mt2.length);
+    let url = `https://${mt2[random]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
     try {
       let response = await fetch(url);
       if (response.ok) {
@@ -320,146 +315,13 @@ async function getValidMpd() {
     }
   }
   mt2 = [...mt]
-  alert("El canal no funciona en este momento.");
+  // alert("El canal no funciona en este momento.");
   throw new Error("No valid MPD URL found");
 }
 
-async function setupPlayer() {
-  try {
-    var mpd = await getValidMpd();
-
-    jwplayer("player").setup({
-      playlist: [{
-        sources: [{
-          default: true,
-          type: "dash",
-          file: mpd,
-          drm: {
-            clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
-          }
-        }]
-      }],
-      width: "100%",
-      height: "100vh",
-      aspectratio: "16:9",
-      autostart: "true",
-      cast: {},
-      sharing: {}
-    });
-
-    playerInstance.on("play", function (e) {
-      playerInstance.setCurrentAudioTrack(1);
-    });
-
-    playerInstance.on("error", (e) => {
-      mt2.splice(mt2.indexOf(lastMt), 1)
-      changeChannel(null, null, getURL)
-    })
-
-    playerInstance.on("ready", () => {
-      // Fix live tabindex
-      const liveInterval = setInterval(() => {
-        const live = document
-          .querySelector("#player")
-          .querySelector(".jw-text-live");
-        if (live) {
-          clearInterval(liveInterval);
-          document
-            .querySelector("#player")
-            .querySelector(".jw-text-live")
-            .setAttribute("tabindex", -1);
-        }
-      }, 500);
-      // Desactiva interaccion con el reproductor
-      document
-        .querySelector("#player")
-        .querySelectorAll("*:not(div.test)")
-        .forEach((e) => e.setAttribute("tabindex", -1));
-      document.querySelector("#player").setAttribute("tabindex", -1);
-
-      // Desactiva keybinds, desmutea reproductor y pantalla completa
-      if (!localStorage.getItem("jwplayer.enableShortcuts")) {
-        localStorage.setItem("jwplayer.enableShortcuts", "false");
-        localStorage.setItem("jwplayer.bitrateSelection", "5145136");
-        localStorage.setItem("jwplayer.qualityLabel", "1080p");
-        location.reload()
-      }
-      playerInstance.setMute(0);
-      playerInstance.setVolume(100);
-      playerInstance.setFullscreen(true);
-
-      // Crea contenedor de canales
-      const midiv = document.createElement("div");
-      midiv.classList = "test";
-      player.prepend(midiv);
-      document.querySelector(".test").addEventListener("click", changeChannel);
-
-      // Crea pop-up seleccion numero de canal
-      const midiv2 = document.createElement("div");
-      const midiv2text = document.createElement("span");
-      midiv2.classList = "channelNumber";
-      midiv2.append(midiv2text);
-      player.prepend(midiv2);
-
-      // Crea todos los botones de los canales
-      channelList.forEach((e, i) => {
-        const btn = document.createElement("button");
-        const cnImage = document.createElement("img");
-        cnImage.src = '/canales/canales/logos/' + (e.img || 'canal.webp')
-        // cnImage.src = "https://raw.githubusercontent.com/leancerioli/canales/refs/heads/main/canales/logos/canal.webp";
-        const cnName = document.createElement("span");
-        cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
-        const cnNumber = document.createElement("span");
-        cnNumber.innerText = i + 1;
-        btn.appendChild(cnImage);
-        btn.appendChild(cnName);
-        btn.appendChild(cnNumber);
-        btn.setAttribute("getURL", e.getURL);
-        btn.setAttribute("tabindex", 0);
-        document.querySelector(".test").appendChild(btn);
-      });
-
-      // Cambiar de canales con flechas (↑) (↓)
-      const getChannelList = document.querySelector(".test");
-      const elementos = document.querySelectorAll('[tabindex="0"]'); // Selecciona todos los elementos con tabindex="0"
-
-      // Función para enfocar el siguiente o el anterior elemento
-      function enfocarElemento(index) {
-        if (index >= 0 && index < elementos.length) {
-          elementos[index].focus();
-        }
-      }
-      enfocarElemento(indexActivo);
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          getChannelList.style.display = "block";
-          // Flecha abajo, mover al siguiente elemento
-          indexActivo = (indexActivo + 1) % elementos.length; // Cicla al siguiente
-          enfocarElemento(indexActivo);
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          getChannelList.style.display = "block";
-          // Flecha arriba, mover al elemento anterior
-          indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
-          enfocarElemento(indexActivo);
-        } else if (e.key === "ArrowLeft") {
-          getChannelList.style.display = "none";
-        } else if (e.key === "ArrowRight") {
-          getChannelList.style.display = "block";
-          enfocarElemento(indexActivo);
-        }
-      });
-    });
-  } catch (error) {
-    console.error("ddFailed to setup player:", error);
-    console.error("No se encontraron URLs válidas.");
-  }
-}
 setupPlayer();
 
-// W.I.P: Deteccion controles TV
+// Deteccion controles TV
 let pressed = "";
 let timer;
 const runTimer = () => {
@@ -470,8 +332,8 @@ const runTimer = () => {
     document.querySelector(".channelNumber").style.visibility = "hidden";
   }, 2000);
 };
+
 document.addEventListener("keypress", (e) => {
-  // document.querySelector('.input').innerText = e.key
   if (!(e.keyCode >= 48 && e.keyCode <= 57)) return;
   if (pressed.length > 2) return;
   document.querySelector(".channelNumber").style.visibility = "visible";
@@ -489,31 +351,24 @@ const debounceDelay = 50;
 let debounceTimeout;
 let startX = 0;
 
-function onTouchStart(e) {
+document.addEventListener('touchstart', (e) => {
   startX = e.touches[0].clientX;
-}
+});
 
-function onTouchMove(e) {
-  const chnList = document.querySelector(".test")
+document.addEventListener('touchmove', (e) => {
+  const chnList = document.querySelector(".channelList")
   const currentX = e.touches[0].clientX; 
 
   if (!e.target.className.match("jw-reset")) return;
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
         if (currentX < startX) {
-          console.log("Movimiento hacia la izquierda");
-          // chnList.style.display = "none"
           chnList.style.transform = `translateX(-${chnList.offsetWidth}px)`
         } else {
-          console.log("Movimiento hacia la derecha");
-          // chnList.style.display = "block"
           chnList.style.transform = "translateX(0px)"
         }
   }, debounceDelay);
-}
-
-document.addEventListener('touchstart', onTouchStart);
-document.addEventListener('touchmove', onTouchMove);
+});
 
 
 // document.addEventListener("keydown", (e) => {
