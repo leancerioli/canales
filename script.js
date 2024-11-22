@@ -251,7 +251,7 @@ const changeChannel = async (e, channelNumber, refreshList) => {
 //   "cdn"
 // ];
 
-let mt = ["chromecast", "cdn", "edge-mix04-coe"]
+let mt = ["chromecast", "cdn"]
 
 async function testSubdomains() {
   for (let i = 0; i < mt.length; i++) {
