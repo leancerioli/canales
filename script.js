@@ -64,6 +64,7 @@ async function setupPlayer() {
         localStorage.setItem("jwplayer.qualityLabel", "1080p");
         location.reload()
       }
+      localStorage.setItem("jwplayer.qualityLabel", "1080p");
       playerInstance.setMute(0);
       playerInstance.setVolume(100);
       // playerInstance.setFullscreen(true);
