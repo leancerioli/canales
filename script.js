@@ -15,7 +15,11 @@ async function setupPlayer() {
         sources: [{
           default: true,
           type: "dash",
-          file: mpd,
+          file: 'https://chromecast.cvattv.com.ar/live/c7eds/La_Nacion/SA_Live_dash_enc/La_Nacion.mpd',
+          "onXhrOpen": function(xhr, url) {
+            // xhr.setRequestHeader('origin', 'https://web.app.flow.com.ar/');
+            // console.log(xhr)
+          },
           drm: {
             clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
           }
@@ -204,6 +208,8 @@ const changeChannel = async (e, channelNumber, refreshList) => {
 };
 
 let mt = [
+  "chromecast",
+  "cdn",
   "edge-live01-mun",
   "edge-live02-mun",
   "edge-live11-hr",
@@ -248,11 +254,10 @@ let mt = [
   "edge-mix02-ird",
   "edge-mix01-mus",
   "edge-mix03-mus",
-  "chromecast",
-  "cdn"
 ];
 
 // let mt = ["chromecast", "cdn"]
+// let mt = ["edge-live02-mun"]
 
 async function testSubdomains() {
   for (let i = 0; i < mt.length; i++) {
@@ -307,20 +312,21 @@ async function getValidMpd(channelInfo) {
   currentChannel = channelToLoad;
   while (mt2.length > 0) {
     let random = Math.floor(Math.random() * mt2.length);
-    let url = `https://${mt2[random]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
+    let url = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
     try {
       let response = await fetch(url);
+
       if (response.ok) {
-        console.log("Selected mt:", mt2[random]);
-        lastMt = mt2[random]
+        console.log("Selected mt:", mt2[0]);
+        lastMt = mt2[0]
         return url;
       } else {
         console.log("Invalid URL, status:", response.status);
-        mt2.splice(random, 1); // Remove the invalid entry from the array
+        mt2.splice(0, 1); // Remove the invalid entry from the array
       }
     } catch (error) {
       console.log("Error fetching URL:", error);
-      mt2.splice(random, 1); // Remove the invalid entry from the array
+      mt2.splice(0, 1); // Remove the invalid entry from the array
     }
   }
   mt2 = [...mt]
