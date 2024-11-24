@@ -15,7 +15,7 @@ async function setupPlayer() {
         sources: [{
           default: true,
           type: "dash",
-          file: 'https://chromecast.cvattv.com.ar/live/c7eds/La_Nacion/SA_Live_dash_enc/La_Nacion.mpd',
+          file: mpd,
           "onXhrOpen": function(xhr, url) {
             // xhr.setRequestHeader('origin', 'https://web.app.flow.com.ar/');
             // console.log(xhr)
