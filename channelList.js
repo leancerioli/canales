@@ -256,46 +256,6 @@ const channelList = [
     number: 7
   },
   {
-    name: 'A&E',
-    img: 'ae.webp',
-    getURL: 'QUVIRA==',
-    keyId: 'db12035627a4b3d7198b761f36b4a290',
-    key: '80ca761a875992ac0e50b0851d5563fe',
-    number: 7
-  },
-  {
-    name: 'AMC',
-    img: 'amc.webp',
-    getURL: 'QU1D',
-    keyId: '1fa6a86fd80b6d1425dde74482b5dc9c',
-    key: '744c3636d57a651ab444cf9fe5f95b33',
-    number: 3
-  },
-  {
-    name: 'TNT',
-    img: 'tnt.webp',
-    getURL: 'VE5UX0hEX0FyZw==',
-    keyId: 'faad1722a575f4d9ec7b774db63c879c',
-    key: 'cf0184830344ba36ad2ffef9dd2dd9d0',
-    number: 3
-  },
-  {
-    name: 'TNT Series',
-    img: 'tntseries.webp',
-    getURL: 'VE5UU2VyaWVz',
-    keyId: '5c14d6aeb19bf113edf91a7b544253cb',
-    key: '8d776d6f9c5c840ebe88d767dd731692',
-    number: 3
-  },
-  {
-    name: 'TNT Novelas',
-    img: 'tntnovelas.webp',
-    getURL: 'VEJT',
-    keyId: '49a0179b034ae899cb67d8a5834181aa',
-    key: '486e2c6d69adea7e17f2960e8e366612',
-    number: 6
-  },
-  {
     name: 'History',
     img: 'history.webp',
     getURL: 'SGlzdG9yeUhE',
@@ -392,11 +352,75 @@ const channelList = [
     number: 6
   },
   {
+    name: 'Comedy Central',
+    img: 'comedycentral.webp',
+    getURL: 'Q29tZWR5Q2VudHJhbA',
+    keyId: '4013f784c5ef4318ad47024e61eb094e',
+    key: 'bad433a547f97c7f65cda5e83b8dd416',
+    number: 7
+  },
+  {
+    name: 'E Entertainment',
+    img: 'entertainment.webp',
+    getURL: 'RV9FbnRlcnRhaW5tZW50X1RlbGV2aXNpb24=',
+    keyId: '5883553207f13e3dc8cecd1113d5ba68',
+    key: '45434d40636dfa0e5312b93218e02185',
+    number: 6
+  },
+  {
+    name: 'Gourmet',
+    img: 'gourmet.webp',
+    getURL: 'R291cm1ldA==',
+    keyId: '93d853ac4c8e24cf0295f6f97ee53bd3',
+    key: 'fa5817fab4fb054ccea1abb9f3d767ed',
+    number: 3
+  },
+  {
     name: 'TLC',
     img: 'tlc.webp',
     getURL: 'VExD',
     keyId: '58761c7b2819491eb3a0d765842c341a',
     key: '9dabc48f88bd7f266734e57501bd6f47',
+    number: 6
+  },
+  {
+    name: 'A&E',
+    img: 'ae.webp',
+    getURL: 'QUVIRA==',
+    keyId: 'db12035627a4b3d7198b761f36b4a290',
+    key: '80ca761a875992ac0e50b0851d5563fe',
+    number: 7
+  },
+  {
+    name: 'AMC',
+    img: 'amc.webp',
+    getURL: 'QU1D',
+    keyId: '1fa6a86fd80b6d1425dde74482b5dc9c',
+    key: '744c3636d57a651ab444cf9fe5f95b33',
+    number: 3
+  },
+  {
+    name: 'TNT',
+    img: 'tnt.webp',
+    getURL: 'VE5UX0hEX0FyZw==',
+    keyId: 'faad1722a575f4d9ec7b774db63c879c',
+    key: 'cf0184830344ba36ad2ffef9dd2dd9d0',
+    number: 3
+  },
+  {
+    name: 'TNT Series',
+    img: 'tntseries.webp',
+    getURL: 'VE5UU2VyaWVz',
+    keyId: '5c14d6aeb19bf113edf91a7b544253cb',
+    key: '8d776d6f9c5c840ebe88d767dd731692',
+    number: 3
+  },
+  {
+    name: 'TNT Novelas',
+    img: 'tntnovelas.webp',
+    getURL: 'VEJT',
+    keyId: '49a0179b034ae899cb67d8a5834181aa',
+    key: '486e2c6d69adea7e17f2960e8e366612',
     number: 6
   },
   {
@@ -486,30 +510,6 @@ const channelList = [
     keyId: 'a5f44a5e30714cf3bcee7c7f15a08b4e',
     key: 'c3c141ae941ab9750339c3af45a65ce2',
     number: 6
-  },
-  {
-    name: 'Comedy Central',
-    img: 'comedycentral.webp',
-    getURL: 'Q29tZWR5Q2VudHJhbA',
-    keyId: '4013f784c5ef4318ad47024e61eb094e',
-    key: 'bad433a547f97c7f65cda5e83b8dd416',
-    number: 7
-  },
-  {
-    name: 'E Entertainment',
-    img: 'entertainment.webp',
-    getURL: 'RV9FbnRlcnRhaW5tZW50X1RlbGV2aXNpb24=',
-    keyId: '5883553207f13e3dc8cecd1113d5ba68',
-    key: '45434d40636dfa0e5312b93218e02185',
-    number: 6
-  },
-  {
-    name: 'Gourmet',
-    img: 'gourmet.webp',
-    getURL: 'R291cm1ldA==',
-    keyId: '93d853ac4c8e24cf0295f6f97ee53bd3',
-    key: 'fa5817fab4fb054ccea1abb9f3d767ed',
-    number: 3
   },
   {
     name: 'A3 Cine',
