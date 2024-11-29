@@ -323,7 +323,7 @@ async function getValidMpd(channelInfo) {
     let url = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
     try {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
-
+      if (!response.ok) throw new Error('MPD Caido')
 
         const urlFromMpd = await readStream(response.body.getReader())
         const streamUrl = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
