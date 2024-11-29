@@ -324,7 +324,7 @@ async function getValidMpd(channelInfo) {
     try {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
 
-      if (response.ok) {
+
         const urlFromMpd = await readStream(response.body.getReader())
         const streamUrl = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
         let response2 = await fetch(streamUrl)
@@ -354,7 +354,8 @@ async function getValidMpd(channelInfo) {
           console.log(`Dominio [ ${mt2[0]} ] caido. Error: ${response2.status}. Eliminando de la lista...`);
           mt2.splice(0, 1);
         }
-      }
+
+      throw new Error("No valid MPD URL found. Reloading list...");
     } catch (error) {
       console.log("Error fetching URL:", error);
       mt2.splice(0, 1);
