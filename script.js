@@ -240,7 +240,7 @@ const setProgramInfo = async (channelInfo) => {
     const { Url } = programInfo.Content[0].Images.VideoFrame[0]
 
     clearTimeout(programTimer)
-    // runprogramTimer()
+    runprogramTimer()
     programInfoElement.querySelector('.programImage img').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
     programInfoElement.querySelector('.programDescription h1').innerText = Title
     programInfoElement.querySelector('.programDescription p').innerText = Description
@@ -325,36 +325,34 @@ async function getValidMpd(channelInfo) {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
       if (!response.ok) throw new Error('MPD Caido')
 
-        const urlFromMpd = await readStream(response.body.getReader())
-        const streamUrl = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
-        let response2 = await fetch(streamUrl)
-        
+      const urlFromMpd = await readStream(response.body.getReader())
+      const streamUrl = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
+      let response2 = await fetch(streamUrl)
+      
+      async function readStream(streamMPD) {
+        return streamMPD.read().then(({ value }) => {
+          const decoder = new TextDecoder();
+          const mpdProcessed = decoder.decode(value, { stream: true });
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(mpdProcessed, 'application/xml');
+          const adaptationSets = xmlDoc.getElementsByTagName('AdaptationSet');
+          const repId = adaptationSets[1].getElementsByTagName('Representation')[0].getAttribute('id')
+          const baseURL = adaptationSets[1].getElementsByTagName('SegmentTemplate')[0].getAttribute('initialization')
+          const segmentUrl = baseURL.replace('$RepresentationID$', repId);
+          return segmentUrl
+        }).catch(error => {
+          console.error('Error reading mpd:', error);
+        });
+      }
 
-        async function readStream(streamMPD) {
-          return streamMPD.read().then(({ value }) => {
-            const decoder = new TextDecoder();
-            const mpdProcessed = decoder.decode(value, { stream: true });
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(mpdProcessed, 'application/xml');
-            const adaptationSets = xmlDoc.getElementsByTagName('AdaptationSet');
-            const repId = adaptationSets[1].getElementsByTagName('Representation')[0].getAttribute('id')
-            const baseURL = adaptationSets[1].getElementsByTagName('SegmentTemplate')[0].getAttribute('initialization')
-            const segmentUrl = baseURL.replace('$RepresentationID$', repId);
-            return segmentUrl
-          }).catch(error => {
-            console.error('Error reading mpd:', error);
-          });
-        }
-
-        if (response2.ok) {
-          console.log("Selected mt:", mt2[0]);
-          lastMt = mt2[0]
-          return url;
-        } else {
-          console.log(`Dominio [ ${mt2[0]} ] caido. Error: ${response2.status}. Eliminando de la lista...`);
-          mt2.splice(0, 1);
-        }
-
+      if (response2.ok) {
+        console.log("Selected mt:", mt2[0]);
+        lastMt = mt2[0]
+        return url;
+      } else {
+        console.log(`Dominio [ ${mt2[0]} ] caido. Error: ${response2.status}. Eliminando de la lista...`);
+        mt2.splice(0, 1);
+      }
     } catch (error) {
       console.log("Error fetching URL:", error);
       mt2.splice(0, 1);
