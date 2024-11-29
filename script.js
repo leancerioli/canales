@@ -355,7 +355,6 @@ async function getValidMpd(channelInfo) {
           mt2.splice(0, 1);
         }
 
-      throw new Error("No valid MPD URL found. Reloading list...");
     } catch (error) {
       console.log("Error fetching URL:", error);
       mt2.splice(0, 1);
