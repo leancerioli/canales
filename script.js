@@ -378,6 +378,8 @@ async function getValidMpd(channelInfo) {
     }
   }
   mt2 = [...mt]
+  document.querySelector('.homeScreen #appError').style.display = 'block';
+  document.querySelector('.homeScreen .loader').style.display = 'none';
   throw new Error("No valid MPD URL found. Reloading list...");
 }
 

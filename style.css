@@ -240,6 +240,11 @@ body {
   font-weight: 600;
 }
 
+.homeScreen #appError {
+  color: red;
+  display: none;
+}
+
 .loader  {
   animation: rotate 1s infinite;  
   height: 50px;
