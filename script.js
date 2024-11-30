@@ -45,9 +45,8 @@ async function setupPlayer() {
     });
 
     playerInstance.on("error", (e) => {
-      console.log('error')
-      mt2.splice(0, 1)
-      changeChannel(null, null, currentChannel.getURL)
+      // mt2.splice(0, 1)
+      // changeChannel(null, null, currentChannel.getURL)
     })
 
     playerInstance.on("ready", () => {
@@ -95,7 +94,11 @@ async function setupPlayer() {
       const programImageContainer = document.createElement("div")
       programImageContainer.classList = 'programImage'
       const programImage = document.createElement("img");
+      programImage.classList = 'programImageBanner'
       programImageContainer.append(programImage)
+      const channelImage = document.createElement("img");
+      channelImage.classList = 'channelImage'
+      programImageContainer.append(channelImage)
       const programInfoTitleContainer = document.createElement("div");
       programInfoTitleContainer.classList = 'programDescription'
       const programInfoTitle = document.createElement("h1");
@@ -126,11 +129,11 @@ async function setupPlayer() {
         document.querySelector(".channelList").appendChild(btn);
       });
 
-      // Cambiar de canales con flechas (↑) (↓)
+      // Cambiar canales con flechas (↑) (↓)
       const getChannelList = document.querySelector(".channelList");
       const elementos = document.querySelectorAll('[tabindex="0"]'); // Selecciona todos los elementos con tabindex="0"
 
-      // Función para enfocar el siguiente o el anterior elemento
+      // Función para enfocar el siguiente/anterior elemento
       function enfocarElemento(index) {
         if (index >= 0 && index < elementos.length) {
           elementos[index].focus();
@@ -139,17 +142,25 @@ async function setupPlayer() {
       enfocarElemento(indexActivo);
 
       document.addEventListener("keydown", (e) => {
+
+        if (platform == 'Win32' && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+          document.querySelector('.channelArrow').innerHTML = crossIcon
+          document.querySelector('.channelArrow').classList.remove('fs')
+        }
+
         if (e.key === "ArrowDown") {
           e.preventDefault();
+          changeLeftPos()
           getChannelList.style.display = "block";
           // Flecha abajo, mover al siguiente elemento
-          indexActivo = (indexActivo + 1) % elementos.length; // Cicla al siguiente
+          indexActivo = (indexActivo + 1) % elementos.length;
           enfocarElemento(indexActivo);
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
+          changeLeftPos()
           getChannelList.style.display = "block";
-          // Flecha arriba, mover al elemento anterior
-          indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
+          // Flecha arriba, mover al anterior elemento
+          indexActivo = (indexActivo - 1 + elementos.length) % elementos.length;
           enfocarElemento(indexActivo);
         } else if (e.key === "ArrowLeft") {
           platform == 'Win32' && getChannelList.style.display == "block" && hideArrow();
@@ -158,11 +169,15 @@ async function setupPlayer() {
         } else if (e.key === "ArrowRight") {
           platform == 'Win32' && getChannelList.style.display == "none" && hideArrow();
           getChannelList.style.display = "block";
-          document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
-          document.querySelector(':root').style.removeProperty('--leftPos')
+          changeLeftPos()
           enfocarElemento(indexActivo);
         }
       });
+
+      const changeLeftPos = () => {
+        document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
+        document.querySelector(':root').style.removeProperty('--leftPos')
+      }
 
       
       if (platform == 'Win32') {
@@ -184,8 +199,7 @@ async function setupPlayer() {
             listArrow.classList.add('fs')
           } else {
             getChannelList.style.display = 'block'
-            document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
-            document.querySelector(':root').style.removeProperty('--leftPos')
+            changeLeftPos()
             listArrow.innerHTML = crossIcon
             listArrow.classList.remove('fs')
             enfocarElemento(indexActivo)
@@ -234,19 +248,19 @@ const changeChannel = async (e, channelNumber, refreshList) => {
 
 // Muestra informacion del programa actual
 let programTimer;
-const runProgramTimer = () => programTimer = setTimeout(() => {document.querySelector('.programInfo').style.visibility = 'hidden'}, 6000)
-
+const runProgramTimer = () => programTimer = setTimeout(() => {document.querySelector('.programInfo').style.visibility = 'hidden'}, 6000);
 const setProgramInfo = async (channelInfo) => {
   if (!channelInfo.pid) return
   const programInfoElement = document.querySelector('.programInfo')
 
   const updateProgramInfo = (programInfo) => {
-    const { Title, Description, Start, End } = programInfo.Content[0]
-    const { Url } = programInfo.Content[0].Images.VideoFrame[0]
+    const { Title, Description, Start, End } = programInfo
+    const { Url } = programInfo.Images.VideoFrame[0]
 
     clearTimeout(programTimer)
-    runProgramTimer()
-    programInfoElement.querySelector('.programImage img').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
+    // runProgramTimer()
+    programInfoElement.querySelector('.programImage .programImageBanner').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
+    programInfoElement.querySelector('.programImage .channelImage').src = `/canales/canales/logos/${(channelInfo.img || 'canal.webp')}`
     programInfoElement.querySelector('.programDescription h1').innerText = Title
     programInfoElement.querySelector('.programDescription p').innerText = Description
     programInfoElement.querySelector('.programDescription span').innerText = `${new Date(Start * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(End * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
@@ -256,15 +270,15 @@ const setProgramInfo = async (channelInfo) => {
   try {
     let response = await fetch(`https://contentapi-ar.cdn.telefonica.com/29/default/es-AR/schedules?fields=Pid,Title,Description,ChannelName,CallLetter,Start,End,LiveChannelPid,LiveProgramPid,images.videoFrame,AgeRatingPid&starttime=${Math.floor(Date.now()/1000)}&endtime=${Math.floor(Date.now()/1000)}&livechannelpids=${channelInfo.pid || 'LCH3267'}`);
     
-    if (response.statusText == "OK") {
-      updateProgramInfo(await response.json())
+    if (response.ok) {
+      let data = await response.json()
+      data.Content[0] && updateProgramInfo(data.Content[0])
     } else {
-      console.log("Invalid URL, status:", response.StatusMessage);
+      console.log("Invalid URL, status:", response.statusText);
     }
   } catch (error) {
     console.log("Error fetching URL:", error);
   }
-  
 }
 
 // Dominios
