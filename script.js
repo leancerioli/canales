@@ -234,7 +234,7 @@ const changeChannel = async (e, channelNumber, refreshList) => {
 
 // Muestra informacion del programa actual
 let programTimer;
-const runprogramTimer = () => programTimer = setTimeout(() => {document.querySelector('.programInfo').style.visibility = 'hidden'}, 6000)
+const runProgramTimer = () => programTimer = setTimeout(() => {document.querySelector('.programInfo').style.visibility = 'hidden'}, 6000)
 
 const setProgramInfo = async (channelInfo) => {
   if (!channelInfo.pid) return
@@ -245,7 +245,7 @@ const setProgramInfo = async (channelInfo) => {
     const { Url } = programInfo.Content[0].Images.VideoFrame[0]
 
     clearTimeout(programTimer)
-    // runprogramTimer()
+    runProgramTimer()
     programInfoElement.querySelector('.programImage img').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
     programInfoElement.querySelector('.programDescription h1').innerText = Title
     programInfoElement.querySelector('.programDescription p').innerText = Description
