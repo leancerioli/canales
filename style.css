@@ -104,9 +104,9 @@ body {
 
 .channelArrow {
   --test: 6px;
+  transform: translateX(var(--leftPos));
   position: fixed;
   top: calc(50% - ((36px + var(--test)) / 2));
-  left:30px;
   border-radius: 0 10px 10px 0;
   background-color: rgba(32, 41, 56, 0.9);
   padding: var(--test) 1px;
@@ -298,6 +298,10 @@ body {
 }
 
 @media (max-width: 1280px) {
+  :root {
+    --leftPos: 180px;
+  }
+  
   .channelList {
     /* max-width: 240px; */
     width: 180px;

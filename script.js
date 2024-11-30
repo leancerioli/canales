@@ -152,9 +152,14 @@ async function setupPlayer() {
           indexActivo = (indexActivo - 1 + elementos.length) % elementos.length; // Cicla al anterior
           enfocarElemento(indexActivo);
         } else if (e.key === "ArrowLeft") {
-          platform == 'Win32' && getChannelList.style.display == "block" ? hideArrow() : getChannelList.style.display = "none";
+          platform == 'Win32' && getChannelList.style.display == "block" && hideArrow();
+          getChannelList.style.display = "none";
+          document.querySelector(':root').style.setProperty('--leftPos', '0px')
         } else if (e.key === "ArrowRight") {
-          platform == 'Win32' && getChannelList.style.display == "none" ? hideArrow() : getChannelList.style.display = "block";
+          platform == 'Win32' && getChannelList.style.display == "none" && hideArrow();
+          getChannelList.style.display = "block";
+          document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
+          document.querySelector(':root').style.removeProperty('--leftPos')
           enfocarElemento(indexActivo);
         }
       });
@@ -166,7 +171,7 @@ async function setupPlayer() {
         listArrow.innerHTML = crossIcon
         // listArrow.innerHTML = 
         listArrow.addEventListener("click", hideArrow);
-        listArrow.style.left = channelListElement.offsetWidth + 'px'
+        // listArrow.style.left = channelListElement.offsetWidth + 'px'
         player.prepend(listArrow)
 
         function hideArrow () {
@@ -174,16 +179,15 @@ async function setupPlayer() {
           let visible = getChannelList.style.display
           if (visible == 'block'){
             getChannelList.style.display = 'none'
-            listArrow.style.left = 0
+            document.querySelector(':root').style.setProperty('--leftPos', '0px')
             listArrow.innerHTML = listIcon
             listArrow.classList.add('fs')
-            document.querySelector(':root').style.setProperty('--leftPos', '0px')
           } else {
             getChannelList.style.display = 'block'
-            listArrow.style.left = getChannelList.offsetWidth + 'px'
+            document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
+            document.querySelector(':root').style.removeProperty('--leftPos')
             listArrow.innerHTML = crossIcon
             listArrow.classList.remove('fs')
-            document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
             enfocarElemento(indexActivo)
           }
         }
@@ -241,7 +245,7 @@ const setProgramInfo = async (channelInfo) => {
     const { Url } = programInfo.Content[0].Images.VideoFrame[0]
 
     clearTimeout(programTimer)
-    runprogramTimer()
+    // runprogramTimer()
     programInfoElement.querySelector('.programImage img').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
     programInfoElement.querySelector('.programDescription h1').innerText = Title
     programInfoElement.querySelector('.programDescription p').innerText = Description
