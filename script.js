@@ -45,7 +45,8 @@ async function setupPlayer() {
     });
 
     playerInstance.on("error", (e) => {
-      mt2.splice(mt2.indexOf(lastMt), 1)
+      console.log('error')
+      mt2.splice(0, 1)
       changeChannel(null, null, currentChannel.getURL)
     })
 
