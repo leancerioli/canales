@@ -5,7 +5,7 @@
 }
 
 :root {
-  --leftPos: 211px;
+  --leftPos: 210px;
 }
 
 body {
@@ -70,8 +70,9 @@ body {
 
 
 .channelList {
-  min-width: 180px;
-  width: 11%;
+  max-width: 210px;
+  /* min-width: 180px; */
+  /* width: 11%; */
   height: 100%;
   display: block;
   gap: 5px;
@@ -298,14 +299,15 @@ body {
 
 @media (max-width: 1280px) {
   .channelList {
-    max-width: 240px;
-    width: 33%;;
+    /* max-width: 240px; */
+    width: 180px;
   }
 
   .programInfo {
     grid-template-columns: 170px auto;
     transition-timing-function: ease;
     transition: transform .5s, width .5s, max-width .5s, position .5s;
+    height: 110px;
   }
 
   .programInfo .programDescription {

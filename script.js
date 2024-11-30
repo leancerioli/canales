@@ -183,7 +183,7 @@ async function setupPlayer() {
             listArrow.style.left = getChannelList.offsetWidth + 'px'
             listArrow.innerHTML = crossIcon
             listArrow.classList.remove('fs')
-            document.querySelector(':root').style.setProperty('--leftPos', '211px')
+            document.querySelector(':root').style.setProperty('--leftPos', getChannelList.offsetWidth + 'px')
             enfocarElemento(indexActivo)
           }
         }
@@ -241,7 +241,7 @@ const setProgramInfo = async (channelInfo) => {
     const { Url } = programInfo.Content[0].Images.VideoFrame[0]
 
     clearTimeout(programTimer)
-    // runprogramTimer()
+    runprogramTimer()
     programInfoElement.querySelector('.programImage img').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
     programInfoElement.querySelector('.programDescription h1').innerText = Title
     programInfoElement.querySelector('.programDescription p').innerText = Description
