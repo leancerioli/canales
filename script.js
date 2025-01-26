@@ -36,6 +36,8 @@ async function setupPlayer() {
       
     playerInstance.on("play", function (e) {
       playerInstance.setCurrentAudioTrack(1);
+      // Setea calidad maxima disponible
+      if (playerInstance.getQualityLevels().length > 1) playerInstance.setCurrentQuality(1)
       // Muestra bitrate de las calidades en PC
       if (platform == 'Win32'){
         let bitrates = playerInstance.getQualityLevels()
@@ -72,8 +74,7 @@ async function setupPlayer() {
       localStorage.setItem("jwplayer.qualityLabel", "1080p");
       playerInstance.setMute(0);
       playerInstance.setVolume(100);
-      playerInstance.setFullscreen(true);
-
+      if (platform != 'Win32') playerInstance.setFullscreen(true);
       // Crea contenedor de canales
       const channelListElement = document.createElement("div");
       channelListElement.classList = "channelList";
@@ -225,7 +226,7 @@ const changeChannel = async (e, channelNumber, refreshList) => {
     const currentChannelNum = channelList.findIndex((f) => f.getURL == selectedChannel)
     indexActivo = currentChannelNum
   }
-  console.log('playing: ', mpd)
+
   if (channelInfo.type != 'external') {
     playerInstance.load({
       sources: [
@@ -351,7 +352,6 @@ let mt = [
 let mt2 = [...mt];
 async function getValidMpd(channelInfo) {
   const channelToLoad = channelInfo || channelList[0];
-  console.log(channelToLoad)
   currentChannel = channelToLoad;
   if (channelToLoad.type == 'external') return channelToLoad.getURL
   while (mt2.length > 0) {
