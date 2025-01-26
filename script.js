@@ -225,25 +225,38 @@ const changeChannel = async (e, channelNumber, refreshList) => {
     const currentChannelNum = channelList.findIndex((f) => f.getURL == selectedChannel)
     indexActivo = currentChannelNum
   }
-
-  playerInstance.load({
-    sources: [
-      {
-        default: true,
-        type: "dash",
-        file: mpd,
-        drm: {
-          clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
+  console.log('playing: ', mpd)
+  if (channelInfo.type != 'external') {
+    playerInstance.load({
+      sources: [
+        {
+          default: true,
+          type: "dash",
+          file: mpd,
+          drm: {
+            clearkey: { keyId: channelInfo.keyId, key: channelInfo.key },
+          },
         },
-      },
-    ],
-  });
+      ],
+    });
+  } else {
+    playerInstance.load({
+      sources: [
+        {
+          default: true,
+          type: "hls",
+          file: mpd
+        },
+      ],
+    });
+  }
+
 
   playerInstance.stop()
   playerInstance.play()
   playerInstance.setMute(0);
   playerInstance.setVolume(100);
-  playerInstance.setCurrentQuality(1);
+  // playerInstance.setCurrentQuality(1);
 };
 
 // Muestra informacion del programa actual
@@ -285,67 +298,72 @@ const setProgramInfo = async (channelInfo) => {
 let mt = [
   "chromecast",
   "cdn",
-  // "edge1-ccast-sl",
-  "edge-live02-mun",
-  "edge2-ccast-sl",
-  "edge-mix02-cte",
   "edge-live01-cte",
+  "edge-live02-mun",
+  "edge-mix02-cte",
   "edge-mix04-coe",
   "edge-mix05-coe",
-  "edge-live01-mun",
-  "edge-live11-hr",
-  "edge-live12-hr",
-  "edge-live13-hr",
-  "edge-live14-hr",
-  "edge-live15-hr",
-  "edge-live16-hr",
-  "edge-live17-hr",
-  "edge-live31-hr",
-  "edge-live32-hr",
-  "edge-live34-hr",
-  "edge-live11-sl",
-  "edge-live12-sl",
-  "edge-live13-sl",
-  "edge-live15-sl",
-  "edge-live17-sl",
-  "edge-live31-sl",
-  "edge-vod02-sl",
-  "edge-vod04-sl",
-  "edge-vod06-sl",
-  "edge9-sl",
-  "edge10-sl",
-  "edge-vod01-hr",
-  "edge-vod03-hr",
-  "edge-vod04-hr",
-  "edge6-ccast-sl",
-  "edge-live01-cen",
-  "edge-live03-cen",
-  "edge-vod01-cen",
-  "edge-live01-cte",
-  "edge-live01-coe",
-  "edge-mix01-coe",
-  "edge-mix02-coe",
-  "edge-mix03-coe",
-  "edge-mix01-ird",
-  "edge-mix02-ird",
-  "edge-mix01-mus",
-  "edge-mix03-mus",
+  "edge2-ccast-sl",
+  
+  //No funciona
+  // "edge1-ccast-sl",
+  // "edge-live01-mun",
+  // "edge-live11-hr",
+  // "edge-live12-hr",
+  // "edge-live13-hr",
+  // "edge-live14-hr",
+  // "edge-live15-hr",
+  // "edge-live16-hr",
+  // "edge-live17-hr",
+  // "edge-live31-hr",
+  // "edge-live32-hr",
+  // "edge-live34-hr",
+  // "edge-live11-sl",
+  // "edge-live12-sl",
+  // "edge-live13-sl",
+  // "edge-live15-sl",
+  // "edge-live17-sl",
+  // "edge-live31-sl",
+  // "edge-vod02-sl",
+  // "edge-vod04-sl",
+  // "edge-vod06-sl",
+  // "edge9-sl",
+  // "edge10-sl",
+  // "edge-live14-sl",
+  // "edge-vod01-hr",
+  // "edge-vod03-hr",
+  // "edge-vod04-hr",
+  // "edge6-ccast-sl",
+  // "edge-live01-cen",
+  // "edge-live03-cen",
+  // "edge-vod01-cen",
+  // "edge-live01-coe",
+  // "edge-mix01-coe",
+  // "edge-mix02-coe",
+  // "edge-mix03-coe",
+  // "edge-mix01-ird",
+  // "edge-mix02-ird",
+  // "edge-mix01-mus",
+  // "edge-mix03-mus",
 ]
 
 // Comprueba dominios y lo asigna
-let lastMt = ''
 let mt2 = [...mt];
 async function getValidMpd(channelInfo) {
   const channelToLoad = channelInfo || channelList[0];
+  console.log(channelToLoad)
   currentChannel = channelToLoad;
+  if (channelToLoad.type == 'external') return channelToLoad.getURL
   while (mt2.length > 0) {
     let url = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
+    // let url = `https://${mt2[0]}.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzMzMjExMTYxIiwic2lwIjoiMjAxLjE3Ny43My4yMTYiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI3ZGYwNzMyYWY5MmE3ZTA1Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjExNCIsImF1ZCI6IjgxIiwic291cmNlcyI6Wzg1LDE0NCw4Niw4OF19.-8iWhQwMfdW6lhZp52d_MlCPr9PWiZ1UnUK460IkCVvQCunasIODmekjgjJlD6T-IwDEKfQBk1ZANWUZxbTHHA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
     try {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
       if (!response.ok) throw new Error('MPD Caido')
-
+        
       const urlFromMpd = await readStream(response.body.getReader())
-      const streamUrl = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
+      const streamUrl = (response.redirected) ? `${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${urlFromMpd}` : `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`;
+      // const streamUrl = `https://${mt2[0]}.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzMzMjExMTYxIiwic2lwIjoiMjAxLjE3Ny43My4yMTYiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI3ZGYwNzMyYWY5MmE3ZTA1Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjExNCIsImF1ZCI6IjgxIiwic291cmNlcyI6Wzg1LDE0NCw4Niw4OF19.-8iWhQwMfdW6lhZp52d_MlCPr9PWiZ1UnUK460IkCVvQCunasIODmekjgjJlD6T-IwDEKfQBk1ZANWUZxbTHHA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
       let response2 = await fetch(streamUrl)
       
       async function readStream(streamMPD) {
@@ -366,8 +384,7 @@ async function getValidMpd(channelInfo) {
 
       if (response2.ok) {
         console.log("Selected mt:", mt2[0]);
-        lastMt = mt2[0]
-        return url;
+        return (response.redirected) ? response.url : url;
       } else {
         console.log(`Dominio [ ${mt2[0]} ] caido. Error: ${response2.status}. Eliminando de la lista...`);
         mt2.splice(0, 1);
@@ -378,8 +395,8 @@ async function getValidMpd(channelInfo) {
     }
   }
   mt2 = [...mt]
-  document.querySelector('.homeScreen #appError').style.display = 'block';
-  document.querySelector('.homeScreen .loader').style.display = 'none';
+  const errorMsg = document.querySelector('.homeScreen #appError'); errorMsg && (errorMsg.style.display = 'block');
+  const animLoader = document.querySelector('.homeScreen .loader'); animLoader && (animLoader.style.display = 'none');
   throw new Error("No valid MPD URL found. Reloading list...");
 }
 

@@ -1279,5 +1279,11 @@ const channelList = [
     keyId: 'e54e9ea87a634658fbba0e380aa701a7',
     key: '4e486d25d7d0e7d131743b285963c643',
     number: 6
+  },
+  {
+    name: 'Dsports (Test)',
+    img: 'dsports.webp',
+    getURL: 'https://streamtp.alwaysdomain02.online/memfs/57e40163-cc40-4bf4-978f-ddc43e624c78.m3u8',
+    type: 'external'
   }
 ]
