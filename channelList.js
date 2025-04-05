@@ -1283,7 +1283,7 @@ const channelList = [
   {
     name: 'Dsports (Test)',
     img: 'dsports.webp',
-    getURL: 'https://streamdx.lat/memfs/075c696e-331d-42d4-9bb7-1e56f973d40b.m3u8',
+    getURL: 'https://anvtcax.fubohd.com/dsports/mono.m3u8?token=f7c890cf837b18fa96b427531e5dffbc7d76506f-2c-1743918472-1743882472',
     type: 'external'
   }
 ]
