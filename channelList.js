@@ -1283,7 +1283,7 @@ const channelList = [
   {
     name: 'Dsports (Test)',
     img: 'dsports.webp',
-    getURL: 'https://streamtp.alwaysdomain02.online/memfs/57e40163-cc40-4bf4-978f-ddc43e624c78.m3u8',
+    getURL: 'https://39osta28l0q8tvo4.tamalpsdrtd.lat/v4/variant/VE1gTdz0mLzRnLv52bt9SMhFjdtM3ajFmc09iZ0kzN5Q2MiFmZidTL5YmMi1CZ2QDNtUjY2cTLygDMldTOldzL.m3u8',
     type: 'external'
   }
 ]
