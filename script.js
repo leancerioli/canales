@@ -41,7 +41,7 @@ async function setupPlayer() {
       // Muestra bitrate de las calidades en PC
       if (platform == 'Win32'){
         let bitrates = playerInstance.getQualityLevels()
-        let qualities = document.querySelectorAll('#jw-settings-submenu-quality button')
+        let qualities = document.querySelectorAll('#jw-player-settings-submenu-quality button')
         qualities.forEach(e => bitrates.forEach(f => f.label == e.innerText ? e.innerText += ` (${Math.round(f.bitrate / 1000)}kbps)` : ''))
       }
     });
@@ -342,6 +342,23 @@ let mt = [
   // "edge-mix03-mus",
 ]
 
+async function getURLwithToken() {
+  let token = sessionStorage.getItem('token')
+  if (!token) {
+    const url = 'https://chromecast.cvattv.com.ar/live/c7eds/La_Nacion/SA_Live_dash_enc/La_Nacion.m3u8';
+    let response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (response.redirected) {
+      const regex = /(https:\/\/.+?)(?=\/live)/;
+      const match = response.url.match(regex);
+      if (match) {
+        token = match[0]
+        sessionStorage.setItem('token', match[0])
+      }
+    }
+  }
+  return token
+}
+
 // Comprueba dominios y lo asigna
 let mt2 = [...mt];
 async function getValidMpd(channelInfo) {
@@ -352,28 +369,40 @@ async function getValidMpd(channelInfo) {
   // while (mt2.length > 0) {
   while (getMPDTries < 5) {
     getMPDTries++
+    let urlWithToken = await getURLwithToken()
+    let url = `${urlWithToken}/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
+
+    try {
+      let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
+      if (!response.ok || response.status !== 200) throw new Error('MPD Caido')
+      return url
+    } catch (error) {
+      console.log("Error fetching URL:", error);
+    }
+
+    // let randomIndex = Math.floor(Math.random() * mt2.length);
+    // let url = `https://${mt2[randomIndex]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.m3u8`;
+    
     // let url = `https://${mt2[0]}.cvattv.com.ar/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
-    let url = `https://edge-live11-sl.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzUxNDk2NTgwIiwic2lwIjoiMjAxLjE3Ny45OC4xNzgiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiIzNDdlNTMyMDhlMjM3YjNiIiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjEyMiIsImF1ZCI6Ijg3Iiwic291cmNlcyI6Wzg1LDE0NCwxODQsODYsODhdfQ==.jRWERR4gpZW79FKBy6nivyu5lWxtfoXVEu3JOs1ErBdIlBOOusQdrgOAjSZYUzRJWPjvYgJxrJ67FZ5ZrbOlkA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
-    
-    
+    // let url = `https://edge-live15-sl.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzUxMzE3NzgxIiwic2lwIjoiMjAxLjE3Ny45OC4xNzgiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI1Yjc0N2E0NGU2ZjMxNjM3Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjEyMiIsImF1ZCI6IjEwOCIsInNvdXJjZXMiOls4NSwxNDQsMTg0LDg2LDg4XX0=.b9ImLm941UoCmyftDMI-9nq1LrIQ7G7cJAJdMupPGGO2MHr0-PLYPGQpD4lbwbuWIpNV-TKaueJRz7_GPKdOrA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
     // let url = 'https://qn-01282-hor-1-07-1---7169-magk.http.global.dns.qwilted-cds.cqloud.com/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzQ3NTMxNjMzIiwic2lwIjoiMTkwLjQ4LjY5LjE3MiIsInBhdGgiOiIvbGl2ZS9jN2Vkcy9MYV9OYWNpb24vU0FfTGl2ZV9kYXNoX2VuYy8iLCJzZXNzaW9uX2Nkbl9pZCI6ImYwMmJmM2ZjNGUxMDMxOWMiLCJzZXNzaW9uX2lkIjoiIiwiY2xpZW50X2lkIjoiIiwiZGV2aWNlX2lkIjoiIiwibWF4X3Nlc3Npb25zIjowLCJzZXNzaW9uX2R1cmF0aW9uIjowLCJ1cmwiOiJodHRwczovLzE4MS4xMi4zNi4xNTAiLCJhdWQiOiIyNzciLCJzb3VyY2VzIjpbODZdfQ==.UeeKkrGxIjaLtmDVTnN8ErJcA4-Ypi8tTf-85nfdnICkr6JIa3FX3iMNmOy9DD16gIN_wKYBd4TxgcdSCcWf3Q==/live/c3eds/La_Nacion/SA_Live_dash_enc/La_Nacion.mpd'
     // let url = `https://${mt2[0]}.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzMzMjExMTYxIiwic2lwIjoiMjAxLjE3Ny43My4yMTYiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI3ZGYwNzMyYWY5MmE3ZTA1Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjExNCIsImF1ZCI6IjgxIiwic291cmNlcyI6Wzg1LDE0NCw4Niw4OF19.-8iWhQwMfdW6lhZp52d_MlCPr9PWiZ1UnUK460IkCVvQCunasIODmekjgjJlD6T-IwDEKfQBk1ZANWUZxbTHHA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
+    /*
     try {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
       if (!response.ok) throw new Error('MPD Caido')
       
       console.log('Antes: ', response)
 
-      if (response.redirected) {
-        const responsetest = await fetch(response.url)
-        const urlMPD = await readStream(responsetest.body.getReader())
-        console.log(`${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${urlMPD}`)
-        // console.log('responsetest: ', responsetest)
-      }
-        
+      const MPDUrl = response.url.replace('m3u8', 'mpd')
+      const MPDresponse = await fetch(MPDUrl)
+      const mpd_MP4 = await readStream(MPDresponse.body.getReader())
+      // console.log(`${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${mpd_MP4}`)
+      
+      
       const urlFromMpd = await readStream(response.body.getReader())
       // console.log(urlFromMpd)
-      const streamUrl = (response.redirected) ? `${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${urlFromMpd}` : `https://edge-live11-sl.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzUxNDk2NTgwIiwic2lwIjoiMjAxLjE3Ny45OC4xNzgiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiIzNDdlNTMyMDhlMjM3YjNiIiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjEyMiIsImF1ZCI6Ijg3Iiwic291cmNlcyI6Wzg1LDE0NCwxODQsODYsODhdfQ==.jRWERR4gpZW79FKBy6nivyu5lWxtfoXVEu3JOs1ErBdIlBOOusQdrgOAjSZYUzRJWPjvYgJxrJ67FZ5ZrbOlkA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`;
+      const streamUrl = (response.redirected) ? `${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${urlFromMpd}` : `https://edge-live15-sl.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzUxMzE3NzgxIiwic2lwIjoiMjAxLjE3Ny45OC4xNzgiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI1Yjc0N2E0NGU2ZjMxNjM3Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjEyMiIsImF1ZCI6IjEwOCIsInNvdXJjZXMiOls4NSwxNDQsMTg0LDg2LDg4XX0=.b9ImLm941UoCmyftDMI-9nq1LrIQ7G7cJAJdMupPGGO2MHr0-PLYPGQpD4lbwbuWIpNV-TKaueJRz7_GPKdOrA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`;
       // const streamUrl = `https://${mt2[0]}.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzMzMjExMTYxIiwic2lwIjoiMjAxLjE3Ny43My4yMTYiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI3ZGYwNzMyYWY5MmE3ZTA1Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjExNCIsImF1ZCI6IjgxIiwic291cmNlcyI6Wzg1LDE0NCw4Niw4OF19.-8iWhQwMfdW6lhZp52d_MlCPr9PWiZ1UnUK460IkCVvQCunasIODmekjgjJlD6T-IwDEKfQBk1ZANWUZxbTHHA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
       let response2 = await fetch(streamUrl)
       
@@ -392,7 +421,7 @@ async function getValidMpd(channelInfo) {
           console.error('Error reading mpd:', error);
         });
       }
-
+        
       if (response2.ok) {
         console.log("Link funcionando: ", response.url);
         getMPDTries = 0
@@ -406,6 +435,7 @@ async function getValidMpd(channelInfo) {
       console.log("Error fetching URL:", error);
       //mt2.splice(0, 1);
     }
+      */
   }
   mt2 = [...mt]
   const errorMsg = document.querySelector('.homeScreen #appError'); errorMsg && (errorMsg.style.display = 'block');
