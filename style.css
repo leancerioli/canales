@@ -19,6 +19,22 @@ body {
   height: 100vh !important
 }
 
+.jw-flag-user-inactive .channelArrow.fs {
+  transition: opacity .3s ease-out;
+  opacity: 0;
+}
+
+/* Boton compartir */
+.jw-rightclick-item:has(button.jw-share-item),
+.jw-settings-sharing {
+  display: none;
+}
+
+/* Overflow rightclick */
+.jwplayer.jw-flag-rightclick-open {
+  overflow: hidden !important;
+}
+
 .programInfo {
   width: 100%;
   height: 137px;
@@ -84,7 +100,6 @@ body {
   filter: grayscale(100%) brightness(300%) contrast(500%) invert(0)  drop-shadow(0 0 1px #000);
 }
 
-
 .channelList {
   max-width: 210px;
   /* min-width: 180px; */
@@ -140,12 +155,6 @@ body {
 .channelArrow:hover svg {
   transform: scale(1.15);
 }
-
-.jw-flag-user-inactive .channelArrow.fs {
-  transition: opacity .3s ease-out;
-  opacity: 0;
-}
-
 
 .channelList button span {
   text-overflow: ellipsis;
