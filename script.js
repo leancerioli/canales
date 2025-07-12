@@ -5,6 +5,7 @@ let indexActivo = 0;
 const platform = window.navigator.platform
 const crossIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" style="fill: rgba(255, 255, 255, 1);transform: ;msFilter:;"><path d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z"></path></svg>'
 const listIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" style="fill: rgba(255 , 255  , 255 , 1);transform: ;msFilter:;"><path d="M5.282 12.064c-.428.328-.72.609-.875.851-.155.24-.249.498-.279.768h2.679v-.748H5.413c.081-.081.152-.151.212-.201.062-.05.182-.142.361-.27.303-.218.511-.42.626-.604.116-.186.173-.375.173-.578a.898.898 0 0 0-.151-.512.892.892 0 0 0-.412-.341c-.174-.076-.419-.111-.733-.111-.3 0-.537.038-.706.114a.889.889 0 0 0-.396.338c-.094.143-.159.346-.194.604l.894.076c.025-.188.074-.317.147-.394a.375.375 0 0 1 .279-.108c.11 0 .2.035.272.108a.344.344 0 0 1 .108.258.55.55 0 0 1-.108.297c-.074.102-.241.254-.503.453zm.055 6.386a.398.398 0 0 1-.282-.105c-.074-.07-.128-.195-.162-.378L4 18.085c.059.204.142.372.251.506.109.133.248.235.417.306.168.069.399.103.692.103.3 0 .541-.047.725-.14a1 1 0 0 0 .424-.403c.098-.175.146-.354.146-.544a.823.823 0 0 0-.088-.393.708.708 0 0 0-.249-.261 1.015 1.015 0 0 0-.286-.11.943.943 0 0 0 .345-.299.673.673 0 0 0 .113-.383.747.747 0 0 0-.281-.596c-.187-.159-.49-.238-.909-.238-.365 0-.648.072-.847.219-.2.143-.334.353-.404.626l.844.151c.023-.162.067-.274.133-.338s.151-.098.257-.098a.33.33 0 0 1 .241.089c.059.06.087.139.087.238 0 .104-.038.193-.117.27s-.177.112-.293.112a.907.907 0 0 1-.116-.011l-.045.649a1.13 1.13 0 0 1 .289-.056c.132 0 .237.041.313.126.077.082.115.199.115.352 0 .146-.04.266-.119.354a.394.394 0 0 1-.301.134zm.948-10.083V5h-.739a1.47 1.47 0 0 1-.394.523c-.168.142-.404.262-.708.365v.754a2.595 2.595 0 0 0 .937-.48v2.206h.904zM9 6h11v2H9zm0 5h11v2H9zm0 5h11v2H9z"></path></svg>'
+let audioChanged = false
 
 // Configura el reproductor
 async function setupPlayer() {
@@ -33,9 +34,18 @@ async function setupPlayer() {
     playerInstance.on("firstFrame", function () {
       setProgramInfo(currentChannel)
     })
+
+    playerInstance.on('audioTracks', (e) => {
+      const currentTrack = playerInstance.getCurrentAudioTrack()
+      if (currentTrack !== 1 && !audioChanged) playerInstance.setCurrentAudioTrack(1)
+    })
+
+    playerInstance.on('audioTrackChanged', (e) => {
+      audioChanged = true
+    })
       
     playerInstance.on("play", function () {
-      playerInstance.setCurrentAudioTrack(1);
+      // playerInstance.setCurrentAudioTrack(1);
       // Setea calidad maxima disponible
       if (playerInstance.getQualityLevels().length > 1) playerInstance.setCurrentQuality(1)
       // Muestra bitrate de las calidades en PC
@@ -372,10 +382,36 @@ async function getValidMpd(channelInfo) {
     let urlWithToken = await getURLwithToken()
     let url = `${urlWithToken}/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
 
+    async function readStream(streamMPD) {
+      return streamMPD.read().then(({ value }) => {
+        const decoder = new TextDecoder();
+        const mpdProcessed = decoder.decode(value, { stream: true });
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(mpdProcessed, 'application/xml');
+        const adaptationSets = xmlDoc.getElementsByTagName('AdaptationSet');
+        const repId = adaptationSets[1].getElementsByTagName('Representation')[0].getAttribute('id')
+        const baseURL = adaptationSets[1].getElementsByTagName('SegmentTemplate')[0].getAttribute('initialization')
+        const segmentUrl = baseURL.replace('$RepresentationID$', repId);
+        return segmentUrl
+      }).catch(error => {
+        console.error('Error reading mpd:', error);
+      });
+    }
+
     try {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
-      if (!response.ok || response.status !== 200) throw new Error('MPD Caido')
-      return url
+      if (!response.ok || response.status !== 200) throw new Error('MPD token caido')
+      const mpd_MP4 = await readStream(response.body.getReader())
+      const mpd_MP4_url = `${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${mpd_MP4}`
+      let MP4_response = await fetch(mpd_MP4_url)
+      if (MP4_response.ok) {
+        getMPDTries = 0
+        audioChanged = false
+        return url
+      } else {
+        console.log(`Link caido. Error: ${MP4_response.status}. Reintentando... (${getMPDTries})`);
+        throw new Error('MPD Caido')
+      }
     } catch (error) {
       console.log("Error fetching URL:", error);
     }
@@ -387,6 +423,7 @@ async function getValidMpd(channelInfo) {
     // let url = `https://edge-live15-sl.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzUxMzE3NzgxIiwic2lwIjoiMjAxLjE3Ny45OC4xNzgiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI1Yjc0N2E0NGU2ZjMxNjM3Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjEyMiIsImF1ZCI6IjEwOCIsInNvdXJjZXMiOls4NSwxNDQsMTg0LDg2LDg4XX0=.b9ImLm941UoCmyftDMI-9nq1LrIQ7G7cJAJdMupPGGO2MHr0-PLYPGQpD4lbwbuWIpNV-TKaueJRz7_GPKdOrA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
     // let url = 'https://qn-01282-hor-1-07-1---7169-magk.http.global.dns.qwilted-cds.cqloud.com/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzQ3NTMxNjMzIiwic2lwIjoiMTkwLjQ4LjY5LjE3MiIsInBhdGgiOiIvbGl2ZS9jN2Vkcy9MYV9OYWNpb24vU0FfTGl2ZV9kYXNoX2VuYy8iLCJzZXNzaW9uX2Nkbl9pZCI6ImYwMmJmM2ZjNGUxMDMxOWMiLCJzZXNzaW9uX2lkIjoiIiwiY2xpZW50X2lkIjoiIiwiZGV2aWNlX2lkIjoiIiwibWF4X3Nlc3Npb25zIjowLCJzZXNzaW9uX2R1cmF0aW9uIjowLCJ1cmwiOiJodHRwczovLzE4MS4xMi4zNi4xNTAiLCJhdWQiOiIyNzciLCJzb3VyY2VzIjpbODZdfQ==.UeeKkrGxIjaLtmDVTnN8ErJcA4-Ypi8tTf-85nfdnICkr6JIa3FX3iMNmOy9DD16gIN_wKYBd4TxgcdSCcWf3Q==/live/c3eds/La_Nacion/SA_Live_dash_enc/La_Nacion.mpd'
     // let url = `https://${mt2[0]}.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzMzMjExMTYxIiwic2lwIjoiMjAxLjE3Ny43My4yMTYiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI3ZGYwNzMyYWY5MmE3ZTA1Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjExNCIsImF1ZCI6IjgxIiwic291cmNlcyI6Wzg1LDE0NCw4Niw4OF19.-8iWhQwMfdW6lhZp52d_MlCPr9PWiZ1UnUK460IkCVvQCunasIODmekjgjJlD6T-IwDEKfQBk1ZANWUZxbTHHA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${atob(channelToLoad.getURL)}.mpd`;
+    
     /*
     try {
       let response = await fetch(url, { signal: AbortSignal.timeout(5000) }); // Cancel at 5s if response timeout
@@ -405,37 +442,11 @@ async function getValidMpd(channelInfo) {
       const streamUrl = (response.redirected) ? `${response.url.slice(0, response.url.indexOf('SA_Live_dash_enc')+17)}${urlFromMpd}` : `https://edge-live15-sl.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzUxMzE3NzgxIiwic2lwIjoiMjAxLjE3Ny45OC4xNzgiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI1Yjc0N2E0NGU2ZjMxNjM3Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjEyMiIsImF1ZCI6IjEwOCIsInNvdXJjZXMiOls4NSwxNDQsMTg0LDg2LDg4XX0=.b9ImLm941UoCmyftDMI-9nq1LrIQ7G7cJAJdMupPGGO2MHr0-PLYPGQpD4lbwbuWIpNV-TKaueJRz7_GPKdOrA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`;
       // const streamUrl = `https://${mt2[0]}.cvattv.com.ar/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzMzMjExMTYxIiwic2lwIjoiMjAxLjE3Ny43My4yMTYiLCJwYXRoIjoiL2xpdmUvYzdlZHMvTGFfTmFjaW9uL1NBX0xpdmVfZGFzaF9lbmMvIiwic2Vzc2lvbl9jZG5faWQiOiI3ZGYwNzMyYWY5MmE3ZTA1Iiwic2Vzc2lvbl9pZCI6IiIsImNsaWVudF9pZCI6IiIsImRldmljZV9pZCI6IiIsIm1heF9zZXNzaW9ucyI6MCwic2Vzc2lvbl9kdXJhdGlvbiI6MCwidXJsIjoiaHR0cHM6Ly8yMDEuMjM1LjY2LjExNCIsImF1ZCI6IjgxIiwic291cmNlcyI6Wzg1LDE0NCw4Niw4OF19.-8iWhQwMfdW6lhZp52d_MlCPr9PWiZ1UnUK460IkCVvQCunasIODmekjgjJlD6T-IwDEKfQBk1ZANWUZxbTHHA==/live/c${channelToLoad.number || 3}eds/${atob(channelToLoad.getURL)}/SA_Live_dash_enc/${urlFromMpd}`
       let response2 = await fetch(streamUrl)
-      
-      async function readStream(streamMPD) {
-        return streamMPD.read().then(({ value }) => {
-          const decoder = new TextDecoder();
-          const mpdProcessed = decoder.decode(value, { stream: true });
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(mpdProcessed, 'application/xml');
-          const adaptationSets = xmlDoc.getElementsByTagName('AdaptationSet');
-          const repId = adaptationSets[1].getElementsByTagName('Representation')[0].getAttribute('id')
-          const baseURL = adaptationSets[1].getElementsByTagName('SegmentTemplate')[0].getAttribute('initialization')
-          const segmentUrl = baseURL.replace('$RepresentationID$', repId);
-          return segmentUrl
-        }).catch(error => {
-          console.error('Error reading mpd:', error);
-        });
-      }
-        
-      if (response2.ok) {
-        console.log("Link funcionando: ", response.url);
-        getMPDTries = 0
-        return (response.redirected) ? response.url : url;
-      } else {
-        // console.log(`Dominio [ ${mt2[0]} ] caido. Error: ${response2.status}. Eliminando de la lista...`);
-        console.log(`Link caido. Error: ${response2.status}. Buscando otro link... (${getMPDTries})`);
-        //mt2.splice(0, 1);
-      }
     } catch (error) {
       console.log("Error fetching URL:", error);
       //mt2.splice(0, 1);
     }
-      */
+    */
   }
   mt2 = [...mt]
   const errorMsg = document.querySelector('.homeScreen #appError'); errorMsg && (errorMsg.style.display = 'block');
