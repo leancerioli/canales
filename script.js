@@ -231,10 +231,19 @@ const changeChannel = async (e, channelNumber, refreshList) => {
   const selectedChannel = e?.target.getAttribute("getURL") || e?.target.parentElement.getAttribute("getURL") || channelList[channelNumber - 1]?.getURL || refreshList;
   const channelInfo = channelList.find((f) => f.getURL == selectedChannel);
   const mpd = await getValidMpd(channelInfo);
-
+  
   if (platform == 'Win32') {
     const currentChannelNum = channelList.findIndex((f) => f.getURL == selectedChannel)
     indexActivo = currentChannelNum
+    
+    // Temporal
+    const elementos = document.querySelectorAll('[tabindex="0"]')
+    function enfocarElemento(index) {
+      if (index >= 0 && index < elementos.length) {
+        elementos[index].focus();
+      }
+    }
+    enfocarElemento(currentChannelNum);
   }
 
   if (channelInfo.type != 'external') {
