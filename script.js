@@ -127,7 +127,7 @@ async function setupPlayer() {
       channelList.forEach((e, i) => {
         const btn = document.createElement("button");
         const cnImage = document.createElement("img");
-        cnImage.src = '/canales/canales/logos/' + (e.img || 'canal.webp')
+        cnImage.src = 'canales/logos/' + (e.img || 'canal.webp')
         const cnName = document.createElement("span");
         cnName.innerText = e.name || atob(e.getURL).replaceAll("_", " ");
         const cnNumber = document.createElement("span");
@@ -293,7 +293,7 @@ const setProgramInfo = async (channelInfo) => {
     clearTimeout(programTimer)
     runProgramTimer()
     programInfoElement.querySelector('.programImage .programImageBanner').src = `https://spotlight-ar.cdn.telefonica.com/customer/v1/source?image=${encodeURIComponent(Url)}?width=240&height=135&resize=CROP&format=WEBP`
-    programInfoElement.querySelector('.programImage .channelImage').src = `/canales/canales/logos/${(channelInfo.img || 'canal.webp')}`
+    programInfoElement.querySelector('.programImage .channelImage').src = `canales/logos/${(channelInfo.img || 'canal.webp')}`
     programInfoElement.querySelector('.programDescription h1').innerText = Title
     programInfoElement.querySelector('.programDescription p').innerText = Description
     programInfoElement.querySelector('.programDescription span').innerText = `${new Date(Start * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(End * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
