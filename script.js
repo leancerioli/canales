@@ -24,11 +24,10 @@ async function setupPlayer() {
         }]
       }],
       width: "100%",
-      height: "100vh",
+      height: "100dvh",
       aspectratio: "16:9",
       autostart: "true",
       cast: {},
-      sharing: {}
     });
 
     playerInstance.on("firstFrame", function () {
