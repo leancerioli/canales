@@ -82,8 +82,10 @@ async function setupPlayer() {
         location.reload()
       }
       localStorage.setItem("jwplayer.qualityLabel", "1080p");
-      playerInstance.setMute(0);
-      playerInstance.setVolume(100);
+      if (platform != 'Win32') {
+        playerInstance.setMute(0);
+        playerInstance.setVolume(100);
+      }
       if (platform != 'Win32') playerInstance.setFullscreen(true);
       // Crea contenedor de canales
       const channelListElement = document.createElement("div");
@@ -94,9 +96,14 @@ async function setupPlayer() {
 
       // Crea pop-up seleccion numero de canal
       const channelNumberElement = document.createElement("div");
+      const channelNumberElementContainer = document.createElement("div");
+      channelNumberElementContainer.classList = "channelNumberContainer";
       const channelNumberElementText = document.createElement("span");
+      const channelNumberElementImage = document.createElement("img");
       channelNumberElement.classList = "channelNumber";
-      channelNumberElement.append(channelNumberElementText);
+      channelNumberElementContainer.append(channelNumberElementImage);
+      channelNumberElementContainer.append(channelNumberElementText);
+      channelNumberElement.append(channelNumberElementContainer);
       player.prepend(channelNumberElement);
 
       // Crea info del programa
@@ -274,8 +281,10 @@ const changeChannel = async (e, channelNumber, refreshList) => {
 
   playerInstance.stop()
   playerInstance.play()
-  playerInstance.setMute(0);
-  playerInstance.setVolume(100);
+  if (platform != 'Win32') {
+    playerInstance.setMute(0);
+    playerInstance.setVolume(100);
+  }
   // playerInstance.setCurrentQuality(1);
 };
 
@@ -478,12 +487,18 @@ const runTimer = () => {
 };
 
 document.addEventListener("keypress", (e) => {
-  if (!(e.keyCode >= 48 && e.keyCode <= 57)) return;
-  if (pressed.length > 2) return;
-  document.querySelector(".channelNumber").style.visibility = "visible";
   const channelNumberBox = document.querySelector(".channelNumber span");
+  const channelNumberImage = document.querySelector(".channelNumber img");
+  if (!(e.keyCode >= 48 && e.keyCode <= 57)) return;
+  if (pressed.length > 2) {
+    pressed = ""
+    channelNumberBox.innerText = ""
+  };
+  document.querySelector(".channelNumber").style.visibility = "visible";
   pressed += e.key;
   channelNumberBox.innerText = pressed;
+  const channelLimit = (pressed - 1) < channelList.length
+  channelNumberImage.src = channelLimit ? 'canales/logos/' + (channelList[pressed - 1].img) : 'logo.svg'
   if (pressed.length >= 1) {
     clearTimeout(timer);
     runTimer();

@@ -752,6 +752,30 @@ const channelList = [
     pid: "LCH3281",
   },
   {
+    name: 'ESPN1 UY',
+    img: 'espndisney.webp',
+    getURL: 'RVNQTl9VWQ==',
+    keyId: '6362e1f36fcb7ee3c47debd9140336ad',
+    key: '9ba1d46c5b9c7a3130a5dabbf7155175',
+    number: 4
+  },
+  {
+    name: 'ESPN2 UY',
+    img: 'espndisney.webp',
+    getURL: 'RVNQTjJfVVk=',
+    keyId: '0d820100144772fed9f38b83650fa7e1',
+    key: 'ded8cc47b29b0eb0b0a87df22e721847',
+    number: 4
+  },
+  {
+    name: 'ESPN3 UY-PY',
+    img: 'espndisney.webp',
+    getURL: 'RVNQTjNfVXktUHk=',
+    keyId: 'ed53871dc50dcdc59a6271db3c8c51b3',
+    key: '0c21dc8629e3f2e6fe9efa8b80dc447e',
+    number: 7
+  },
+  {
     name: 'ESPN',
     img: 'espn.webp',
     getURL: 'RVNQTjJIRA',
