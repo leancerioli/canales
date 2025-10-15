@@ -157,6 +157,7 @@ async function setupPlayer() {
         }
       }
       enfocarElemento(indexActivo);
+      elementos[0].classList.add('active')
 
       document.addEventListener("keydown", (e) => {
 
@@ -242,11 +243,17 @@ const changeChannel = async (e, channelNumber, refreshList) => {
     const currentChannelNum = channelList.findIndex((f) => f.getURL == selectedChannel)
     indexActivo = currentChannelNum
     
+    const toggleActiveChannel = (activeChanel, channels) => {
+      channels.forEach(channel => channel.classList.remove('active'))
+      activeChanel.classList.add('active');
+    }
+    
     // Temporal
     const elementos = document.querySelectorAll('[tabindex="0"]')
     function enfocarElemento(index) {
       if (index >= 0 && index < elementos.length) {
         elementos[index].focus();
+        toggleActiveChannel(elementos[index], elementos)
       }
     }
     enfocarElemento(currentChannelNum);

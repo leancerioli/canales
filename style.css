@@ -48,6 +48,11 @@ body {
   grid-template-columns: 240px auto;
   gap: 10px;
   visibility: hidden;
+  transition: opacity .3s ease;
+}
+
+.programInfo:hover {
+  opacity: .2;
 }
 
 .programInfo .programDescription {
@@ -131,6 +136,46 @@ body {
   gap: 5px;
   align-items: center;
   text-align: start;
+}
+
+.channelList button.active {
+  background-color: rgba(255, 255, 255, .1);
+  grid-template-columns: .35fr 1fr .24fr 0px;
+  grid-template-rows: 100%;
+}
+
+.channelList button.active::after,
+.channelList button.active::before {
+  content: '';
+  position: relative;
+  top: 0;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: rgba(220, 1, 1, 0.8);
+  z-index: 8888;
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.channelList button.active::before {
+  box-shadow: 0 0 2px 2px rgba(255, 0, 0, 0.664);
+}
+
+.channelList button.active::after {
+  animation: breath 2s infinite cubic-bezier(.36, .11, .89, .32);
+}
+
+@keyframes breath {
+  from {
+    transform: scale(.9, .9);
+    opacity: .8;
+  }
+  to {
+    transform: scale(3.8, 3.8);
+    opacity: 0;
+  }
 }
 
 .channelArrow {
