@@ -161,10 +161,11 @@ body {
 
 .channelList button.active::before {
   box-shadow: 0 0 2px 2px rgba(255, 0, 0, 0.664);
+  animation: breath2 4s infinite alternate-reverse;
 }
 
 .channelList button.active::after {
-  animation: breath 2s infinite cubic-bezier(.36, .11, .89, .32);
+  animation: breath 2s infinite;
 }
 
 @keyframes breath {
@@ -175,6 +176,15 @@ body {
   to {
     transform: scale(3.8, 3.8);
     opacity: 0;
+  }
+}
+
+@keyframes breath2 {
+  from {
+    transform: scale(.8, .8);
+  }
+  to {
+    transform: scale(1.2, 1.2);
   }
 }
 
@@ -191,6 +201,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  transition: transform .5s ease;
 }
 
 .channelArrow svg {
