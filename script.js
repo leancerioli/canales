@@ -92,6 +92,7 @@ async function setupPlayer() {
       channelListElement.classList = "channelList";
       channelListElement.style.display = 'block'
       channelListElement.addEventListener("click", changeChannel);
+      if (platform == 'Win32') channelListElement.classList.add('desktop');
       player.prepend(channelListElement);
 
       // Crea pop-up seleccion numero de canal

@@ -255,7 +255,7 @@ body {
 /* Handle */
 .channelList::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: transparent;
+  background-color: rgba(202, 202, 202, 0.479);
 }
 
 /* Handle on hover */
@@ -263,7 +263,13 @@ body {
   background: #111;
 }
 
-.channelList:hover {
+.channelList.desktop {
+  &.channelList::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+}
+
+.channelList.desktop:hover {
   &.channelList::-webkit-scrollbar-thumb {
     background-color: rgba(202, 202, 202, 0.479);
   }
