@@ -1,7 +1,8 @@
 const playerInstance = jwplayer("player");
 jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo"
-let currentChannel = channelList[0];
-let indexActivo = 0;
+let lastChannel = localStorage.getItem("lastChannelID")
+let currentChannel = channelList[lastChannel] || channelList[0];
+let indexActivo = Number(lastChannel) || 0;
 let isShowing = true
 const platform = window.navigator.platform
 const crossIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" style="fill: rgba(255, 255, 255, 1);transform: ;msFilter:;"><path d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z"></path></svg>'
@@ -20,7 +21,7 @@ async function setupPlayer() {
           type: "dash",
           file: mpd,
           drm: {
-            clearkey: { keyId: channelList[0].keyId, key: channelList[0].key }
+            clearkey: { keyId: currentChannel.keyId, key: currentChannel.key }
           }
         }]
       }],
@@ -33,6 +34,7 @@ async function setupPlayer() {
 
     playerInstance.on("firstFrame", function () {
       setProgramInfo(currentChannel)
+      localStorage.setItem("lastChannelID", channelList.findIndex((f) => f.getURL == currentChannel.getURL) || 0);
     })
 
     playerInstance.on('audioTracks', (e) => {
@@ -159,7 +161,7 @@ async function setupPlayer() {
         }
       }
       enfocarElemento(indexActivo);
-      elementos[0].classList.add('active')
+      elementos[lastChannel || 0].classList.add('active')
 
       document.addEventListener("keydown", (e) => {
 
@@ -412,7 +414,7 @@ async function getURLwithToken() {
 // Comprueba dominios y lo asigna
 let mt2 = [...mt];
 async function getValidMpd(channelInfo) {
-  const channelToLoad = channelInfo || channelList[0];
+  const channelToLoad = channelInfo || channelList[lastChannel] || channelList[0];
   currentChannel = channelToLoad;
   if (channelToLoad.type == 'external') return channelToLoad.getURL
   let getMPDTries = 0
