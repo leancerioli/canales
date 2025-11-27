@@ -397,7 +397,7 @@ let mt = [
 async function getURLwithToken() {
   let token = sessionStorage.getItem('token')
   if (!token) {
-    const url = 'https://chromecast.cvattv.com.ar/live/c7eds/La_Nacion/SA_Live_dash_enc/La_Nacion.m3u8';
+    const url = 'https://chromecast.cvattv.com.ar/live/c7eds/La_Nacion/SA_Live_dash_enc_wl/La_Nacion.m3u8';
     let response = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (response.redirected) {
       const regex = /(https:\/\/.+?)(?=\/live)/;
